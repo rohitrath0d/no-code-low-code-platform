@@ -45,8 +45,12 @@ class ChatLog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_query: str
     response: str
-    context_used: str
+    # context_used: str
+    context_used: Optional[str]
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # worflow if for fetching chats based on workflow
+    workflow_id: Optional[int] = Field(default=None, foreign_key="workflow.id")
 
 class Workflow(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

@@ -1,27 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { toast } from "../components/ui/sonner"
-import { toast } from "sonner"
-
-
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
       const res = await fetch("http://127.0.0.1:8000/users/", {
         method: "POST",
@@ -32,8 +24,6 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
 
-      toast("Registration successful! Please login.");
-
       navigate("/login");
     } catch (err) {
       setError(err.message);
@@ -41,44 +31,84 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-xl font-bold mb-6 text-center">Sign Up</h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          className="w-full p-2 border rounded mb-4"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full p-2 border rounded mb-4"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full p-2 border rounded mb-6"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+      <div className="flex w-full max-w-6xl shadow-lg bg-white rounded-xl overflow-hidden bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+        {/* Left side: background graphic */}
+
+        <div
+          className="hidden md:flex flex-1 bg-cover bg-center items-center justify-center"
+        // style={{ backgroundImage: "url('/your-image.jpg')" }}
         >
-          Register
-        </button>
-      </form>
+
+          <img
+            src="images/images.png"
+          />
+          {/* <div className="text-center p-8 bg-white/70 rounded-xl backdrop-blur-sm"> */}
+          {/* <div className="text-center p-8 rounded-xl backdrop-blur-sm bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"> */}
+          {/* <h2 className="text-3xl font-semibold text-gray-800 mb-4">No-Code / Low-Code</h2> */}
+          {/* <p className="text-gray-600">Streamlined onboarding. Get started in minutes.</p> */}
+          {/* </div> */}
+        </div>
+
+        {/* Right side: registration form */}
+        <div className="w-full md:w-1/2 p-8">
+          <Card className="w-full bg-gradient-to-r from-purple-50-100 via-purple-100 to-blue-100">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Register</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Full Name
+                  </label>
+                  <Input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <Input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <Input
+                    type="password"
+                    name="password"
+                    id="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:opacity-90">
+                  Register
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

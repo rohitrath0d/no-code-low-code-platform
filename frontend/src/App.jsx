@@ -23,6 +23,8 @@ function App() {
         <Route path="/home" element={<Home />} />
 
         {/* <WorkflowPage/> */}
+        
+        {/* <Route path="/stack" element={<StacksPage />} /> */}
         <Route path="/workflow" element={<WorkflowPage />} />
         
         <Route path="/login" element={<LoginPage />} />

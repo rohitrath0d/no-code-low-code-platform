@@ -1,234 +1,103 @@
-// /* eslint-disable no-unused-vars */
-// import { useState } from 'react';
-// import { Handle, Position } from 'reactflow';
-
-// export default function LLMEngineNode() {
-//   const [model, setModel] = useState('gemini');
-//   const [customPrompt, setCustomPrompt] = useState('');
-//   const [query, setQuery] = useState('');
-//   const [context, setContext] = useState('');
-//   const [response, setResponse] = useState('');
-//   const [loading, setLoading] = useState(false);
-
-//   const runLLM = async () => {
-//     setLoading(true);
-//     setResponse('');
-
-//     try {
-//       const res = await fetch('http://localhost:8000/run-workflow', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//           query,
-//           custom_prompt: customPrompt,
-//           top_k: 1,
-//           components: [
-//             {
-//               id: '1',
-//               type: 'llm_engine',
-//               config: { model }
-//             }
-//           ]
-//         })
-//       });
-
-//       const data = await res.json();
-//       setContext(data.context_used || '');
-//       setResponse(data.llm_response || 'No response.');
-//     } catch (err) {
-//       console.error(err);
-//       setResponse('Error contacting LLM engine.');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="bg-white border rounded-xl shadow-md p-4 w-96 relative">
-//       <Handle type="target" position={Position.Top} />
-//       <h3 className="text-lg font-semibold mb-2">LLM Engine</h3>
-
-//       <div className="mb-2">
-//         <label className="block text-sm font-medium">Model</label>
-//         <select
-//           value={model}
-//           onChange={(e) => setModel(e.target.value)}
-//           className="w-full border px-2 py-1 rounded"
-//         >
-//           <option value="gemini">Gemini</option>
-//           <option value="openai">OpenAI</option>
-//           {/* You can add more models here */}
-//         </select>
-//       </div>
-
-//       <div className="mb-2">
-//         <label className="block text-sm font-medium">Custom Prompt (optional)</label>
-//         <textarea
-//           value={customPrompt}
-//           onChange={(e) => setCustomPrompt(e.target.value)}
-//           className="w-full border px-2 py-1 rounded text-sm"
-//           rows="2"
-//         />
-//       </div>
-
-//       <div className="mb-2">
-//         <label className="block text-sm font-medium">User Query</label>
-//         <input
-//           type="text"
-//           value={query}
-//           onChange={(e) => setQuery(e.target.value)}
-//           className="w-full border px-2 py-1 rounded text-sm"
-//         />
-//       </div>
-
-//       <button
-//         onClick={runLLM}
-//         disabled={loading}
-//         className="bg-indigo-600 text-white px-4 py-1 rounded text-sm mt-2"
-//       >
-//         {loading ? 'Running...' : 'Run LLM'}
-//       </button>
-
-//       {response && (
-//         <div className="mt-3 text-sm bg-gray-100 p-2 rounded">
-//           <strong>LLM Response:</strong>
-//           <p className="text-xs mt-1 whitespace-pre-wrap">{response}</p>
-//         </div>
-//       )}
-
-//       <Handle type="source" position={Position.Bottom} />
-//     </div>
-//   );
-// }
-
-
-
-/* eslint-disable no-unused-vars */
-import { useState } from 'react';
 import { Handle, Position } from 'reactflow';
+import { useEffect, useState } from 'react';
 
-export default function LLMEngineNode() {
+export default function LLMEngineNode({data}) {        // data been receiving as prop - hence data.config being defined from here.
   const [model, setModel] = useState('gpt-4o');
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [query, setQuery] = useState('');
+  const [customPrompt, setCustomPrompt] = useState('You are a helpful PDF assistant. Use Web Search when content is not available.');
   const [temperature, setTemperature] = useState(0.75);
   const [serpApiKey, setSerpApiKey] = useState('');
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
 
-  const runLLM = async () => {
-    try {
-      const res = await fetch('http://localhost:8000/run-workflow', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query,
-          custom_prompt: customPrompt,
-          top_k: 1,
-          components: [
-            {
-              id: '1',
-              type: 'llm_engine',
-              config: {
-                model,
-                temperature,
-                use_serp: webSearchEnabled,
-                serp_api_key: serpApiKey
-              }
-            }
-          ]
-        })
-      });
+  useEffect(() => {
+    data.config = {
+      model,
+      customPrompt,
+      temperature,
+      serpApiKey,
+      webSearchEnabled
+    };
+  }, [model, customPrompt, temperature, serpApiKey, webSearchEnabled]);
 
-      const data = await res.json();
-      console.log(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
-    <div className="bg-white border rounded-xl shadow-md p-4 w-[420px] relative">
-      <Handle type="target" position={Position.Top} />
-      <h3 className="text-lg font-semibold mb-3">LLM (OpenAI)</h3>
-
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          Model
-        </label>
-        <select
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-          className="w-full border text-sm px-2 py-1 rounded"
-        >
-          <option value="gpt-4o">GPT 4o - Mini</option>
-          <option value="gpt-3.5-turbo">GPT 3.5 Turbo</option>
-          <option value="gemini">Gemini</option>
-        </select>
+    // <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative">
+    <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-bold text-gray-800">LLM (OpenAI)</h3>
+        <div className="w-3 h-3 rounded-full bg-purple-500"></div>
       </div>
 
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          API Key
-        </label>
-        <input
-          type="password"
-          className="w-full border px-2 py-1 rounded text-sm"
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          Prompt
-        </label>
-        <textarea
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
-          className="w-full border px-2 py-1 rounded text-sm"
-          rows={3}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          Temperature
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          max="1"
-          min="0"
-          value={temperature}
-          onChange={(e) => setTemperature(parseFloat(e.target.value))}
-          className="w-full border px-2 py-1 rounded text-sm"
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          WebSearch Tool
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={webSearchEnabled}
-            onChange={(e) => setWebSearchEnabled(e.target.checked)}
-          />
-          <span className="text-sm">SerpAPI</span>
+      <div className="space-y-3">
+        <div>
+          <p className="text-xs text-gray-500 mb-1">Run a query with OpenAI LLM:</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Model</label>
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="gpt-4o"> Gemini 2.0 Flash (available)</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (not available)</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">API key</label>
+              <input
+                type="password"
+                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
         </div>
-        <input
-          type="password"
-          placeholder="Serp API Key"
-          value={serpApiKey}
-          onChange={(e) => setSerpApiKey(e.target.value)}
-          className="w-full mt-1 border px-2 py-1 rounded text-sm"
-        />
+
+        <div>
+          <label className="text-xs font-medium text-gray-600 block mb-1">Prompt</label>
+          <textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2 text-sm h-20 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-medium text-gray-600 block mb-1">Temperature</label>
+            <input
+              type="number"
+              step="0.01"
+              max="1"
+              min="0"
+              value={temperature}
+              onChange={(e) => setTemperature(parseFloat(e.target.value))}
+              className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-600 block mb-1">WebSearch Tool</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={webSearchEnabled}
+                onChange={(e) => setWebSearchEnabled(e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <span className="text-xs">SerpAPI</span>
+            </div>
+            <input
+              type="password"
+              placeholder="Serp API Key"
+              value={serpApiKey}
+              onChange={(e) => setSerpApiKey(e.target.value)}
+              className="w-full mt-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
       </div>
 
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Top} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
+      <Handle type="source" position={Position.Bottom} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
     </div>
   );
 }

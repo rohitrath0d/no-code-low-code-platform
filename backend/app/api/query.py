@@ -77,7 +77,8 @@ async def ask_gemini(request: QueryRequest):
       chat = ChatLog(
         user_query=request.query,
         response=llm_response,
-        context_used=context
+        context_used=context,
+        workflow_id=request.workflow_id  
       )
       session.add(chat)
       session.commit()

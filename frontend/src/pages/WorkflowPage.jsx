@@ -11,15 +11,17 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
+
 import nodeTypes from "../components/NodeRenderer"; // dynamic component renderer
 import { useNavigate, useParams } from 'react-router-dom';
-import { Play, MessageSquare, Send } from "lucide-react";
+import { Play, MessageSquare, Send, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useEffect } from "react";
 import { getUserProfile } from "../util/auth"; //  this fetches /users/me
 // import toast from "../components/ui/sonner"
 import { toast } from "sonner"
+import Navigation from "../components/Navigation";
 
 
 const initialNodes = [];
@@ -42,6 +44,9 @@ export default function WorkflowPage() {
   const [messages, setMessages] = useState([]);
   const [user, setUser] = useState(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [chatLogs, setChatLogs] = useState([]);
+  const navigate = useNavigate();
+  const { stackId } = useParams();
 
 
   useEffect(() => {
@@ -52,14 +57,23 @@ export default function WorkflowPage() {
     fetchUser();
   }, []);
 
+  // fetching chat logs
+  useEffect(() => {
+    if (stackId && chatOpen) {
+      fetch(`http://localhost:8000/chatlogs/${stackId}`)
+        .then(res => res.json())
+        .then(setChatLogs)
+        .catch(err => console.error(err));
+    }
+  }, [stackId, chatOpen]);
 
-  const navigate = useNavigate();
-  const { stackId } = useParams();
 
   const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
 
-  const onDragStart = (event, type) => {
-    event.dataTransfer.setData("application/reactflow", type);
+  // const onDragStart = (event, type) => {
+  const onDragStart = (event, nodeTypes) => {
+    // event.dataTransfer.setData("application/reactflow", type);
+    event.dataTransfer.setData("application/reactflow", nodeTypes);
     event.dataTransfer.effectAllowed = "move";
   };
 
@@ -67,15 +81,23 @@ export default function WorkflowPage() {
     (event) => {
       event.preventDefault();
 
+      // Check if we're dropping on the reactflow wrapper
+      if (!reactFlowWrapper.current) return;
+
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const type = event.dataTransfer.getData("application/reactflow");
+
+      // Ensure we have a valid type
+      if (!type) return;
+
       const position = {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       };
 
       const newNode = {
-        id: `${+new Date()}`,
+        // id: `${+new Date()}`,
+         id: `${Date.now()}`,
         type,
         position,
         data: { label: `${type}` },
@@ -100,6 +122,7 @@ export default function WorkflowPage() {
     setQuery('');
 
     try {
+      // const res = await fetch("http://localhost:8000/run-workflow", {
       const res = await fetch("http://localhost:8000/run-workflow", {
         method: "POST",
         headers: {
@@ -109,18 +132,28 @@ export default function WorkflowPage() {
           query,
           custom_prompt: "",
           top_k: 1,
-          components: []
+          workflow_id: parseInt(stackId),
+          // components: []
+
+          // This sends the full graph config of all the components to the backend
+          components: nodes.map(n => ({
+            id: n.id,
+            type: n.type,
+            config: n.data?.config || {}
+          }))
         })
       });
       const data = await res.json();
+      console.log(data);
 
       // Add AI response (simulating the response from your screenshot)
-      const aiMessage = {
-        text: `# GenAI Stack Chat\n\n## Can you share stock records of Coca Cola and Pepsí for last 5 years?\n\n1. **Coca-Cola (KO):** Coca-Cola's stock has steadily grown over the past 5 years, thanks to diversification into non-soda beverages. The pandemic caused a temporary dip in its stock price, but it has since rebounded. Its consistent dividend payouts make it appealing to long-term investors.\n\n2. **PepsiCo (PEP):** PepsiCo's stock has shown stable growth, thanks to its diversified portfolio, including food and beverages, which shields it from market volatility. The company's resilience during the pandemic led to a strong recovery, and steady dividends have attracted income-focused investors.\n\nIn conclusion, both companies have demonstrated resilience and steady growth over the past 5 years, appealing to growth and income-focused investors.`,
-        sender: 'ai',
-        isMarkdown: true
-      };
-      setMessages(prev => [...prev, aiMessage]);
+      // const aiMessage = {
+      //   text: `# GenAI Stack Chat\n\n## Can you share stock records of Coca Cola and Pepsí for last 5 years?\n\n1. **Coca-Cola (KO):** Coca-Cola's stock has steadily grown over the past 5 years, thanks to diversification into non-soda beverages. The pandemic caused a temporary dip in its stock price, but it has since rebounded. Its consistent dividend payouts make it appealing to long-term investors.\n\n2. **PepsiCo (PEP):** PepsiCo's stock has shown stable growth, thanks to its diversified portfolio, including food and beverages, which shields it from market volatility. The company's resilience during the pandemic led to a strong recovery, and steady dividends have attracted income-focused investors.\n\nIn conclusion, both companies have demonstrated resilience and steady growth over the past 5 years, appealing to growth and income-focused investors.`,
+      //   sender: 'ai',
+      //   isMarkdown: true
+      // };
+      // setMessages(prev => [...prev, aiMessage]);
+
     } catch (err) {
       console.error(err);
       const errorMessage = {
@@ -128,7 +161,7 @@ export default function WorkflowPage() {
         sender: 'ai',
         isError: true
       };
-      setMessages(prev => [...prev, errorMessage]);
+      // setMessages(prev => [...prev, errorMessage]);
     }
   };
 
@@ -140,14 +173,18 @@ export default function WorkflowPage() {
   };
 
   return (
+
+
     <ReactFlowProvider>
-      <div className="flex h-screen relative">
+      <Navigation />
+      <div className="flex h-screen relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
+
         {/* Sidebar */}
         {/* <div className="w-64 bg-gray-100 border-r p-4">
           <h2 className="text-xl font-semibold mb-4">Components</h2>
           <div className="space-y-2">
             {COMPONENTS.map((comp) => (
-              <button
+              <button 
                 key={comp.type}
                 draggable
                 onDragStart={(e) => onDragStart(e, comp.type)}
@@ -159,16 +196,18 @@ export default function WorkflowPage() {
           </div>
         </div> */}
 
-        <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between">
+        {/* <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between "> */}
+        <div className="w-64 border-r p-4 flex flex-col justify-between bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
           <div>
-            <h2 className="text-xl font-semibold mb-4">Components</h2>
+            <h2 className="text-xl font-semibold mb-4 text-center">Components</h2>
             <div className="space-y-2">
               {COMPONENTS.map((comp) => (
                 <button
                   key={comp.type}
                   draggable
                   onDragStart={(e) => onDragStart(e, comp.type)}
-                  className="w-full px-4 py-2 bg-white rounded border hover:bg-gray-50 cursor-move"
+                  // className="w-full px-4 py-2 bg-white rounded-xl border hover:bg-gray-50 cursor-move"
+                  className="w-full px-4 py-2 rounded-xl border-1 border-gray-700 cursor-move bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
                 >
                   {comp.label}
                 </button>
@@ -183,7 +222,7 @@ export default function WorkflowPage() {
           </div>
 
           {user && (
-            <div className="mt-8 text-sm text-gray-600 border-t pt-4">
+            <div className="mt-3 text-sm text-gray-600 border-t pt-4">
               <p className="font-medium text-gray-800">Logged in as:</p>
               <p>{user.name}</p>
               <p className="text-xs text-gray-500 mb-4">{user.email}</p>
@@ -194,7 +233,7 @@ export default function WorkflowPage() {
                     variant="outline"
                     className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
                   >
-                    Logout
+                    Logout  <LogOut />
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -224,8 +263,6 @@ export default function WorkflowPage() {
             </div>
           )}
         </div>
-
-
 
         {/* Canvas */}
         <div className="flex-1 h-full" ref={reactFlowWrapper}>
@@ -272,6 +309,24 @@ export default function WorkflowPage() {
                 <DialogTitle className="text-lg">GenAI Stack Chat</DialogTitle>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+
+                <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto">
+
+                  {chatLogs.length > 0 && (
+                    <div className="border rounded p-3 text-sm bg-gray-50 mb-4 max-h-[250px] overflow-y-auto">
+                      <p className="text-gray-500 text-xs mb-2">Previous Logs</p>
+                      {chatLogs.map(log => (
+                        <div key={log.id} className="mb-3">
+                          <div className="font-semibold text-blue-900">You:</div>
+                          <div className="mb-1">{log.user_query}</div>
+                          <div className="font-semibold text-green-900">Bot:</div>
+                          <div>{log.response}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {messages.length === 0 ? (
                   <div className="text-center text-gray-500 mt-10">
                     Ask something to get started...

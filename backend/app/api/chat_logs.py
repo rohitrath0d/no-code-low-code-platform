@@ -13,3 +13,13 @@ def get_chat_logs():
     with next(get_Session()) as session:
         logs = session.exec(select(ChatLog).order_by(ChatLog.created_at.desc())).all()
         return logs
+
+@router.get("/{workflow_id}", response_model=List[ChatLogRead])
+def get_logs_for_workflow(workflow_id: int):
+    with next(get_Session()) as session:
+        logs = session.exec(
+            select(ChatLog)
+            .where(ChatLog.workflow_id == workflow_id)
+            .order_by(ChatLog.created_at.desc())
+        ).all()
+        return logs

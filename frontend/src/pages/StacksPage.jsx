@@ -11,8 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getUserProfile } from '../util/auth';
+import Navigation from '../components/Navigation';
 
 export default function StacksPage() {
+
+  const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
+
   const navigate = useNavigate();
   const [stacks, setStacks] = useState([]);
   const [form, setForm] = useState({ name: '', description: '' });
@@ -33,15 +37,24 @@ export default function StacksPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mb-4 text-lg font-semibold">
-        Hello, {user?.name || "loading..."}
+    // <div className="min-h-screen bg-gray-50 p-8 ">
+   
+
+    <div className="min-h-screen bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100  ">
+
+      <Navigation />
+
+      <div className="p-4 text-2xl font-bold">
+        Hello, {user?.name || "loading..."} 👋
       </div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Stacks</h1>
+      <div className="flex justify-between items-center p-4">
+        <h1 className="text-xl font-semibold">My Stacks</h1>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700">
+            <Button 
+            // className="bg-green-600 hover:bg-green-700"
+            className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
+            >
               + New Stack
             </Button>
           </DialogTrigger>
@@ -84,7 +97,8 @@ export default function StacksPage() {
                 <Button
                   type="submit"
                   onClick={handleCreateStack}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  // className="bg-blue-600 hover:bg-blue-700"
+                  className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
                 >
                   Create
                 </Button>
@@ -98,11 +112,14 @@ export default function StacksPage() {
         <div className="flex flex-col items-center justify-center h-96 border border-dashed border-gray-300 rounded-md">
           <p className="text-lg font-medium mb-2">Create New Stack</p>
           <p className="text-sm text-gray-500 mb-4">
-            Start building your generative AI apps with essential tools
+            Start building your generative AI apps with essential tools and framworks
           </p>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button 
+              // className="bg-green-600 hover:bg-green-700"
+              className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
+              >
                 + New Stack
               </Button>
             </DialogTrigger>
@@ -145,7 +162,8 @@ export default function StacksPage() {
                   <Button
                     type="submit"
                     onClick={handleCreateStack}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    // className="bg-blue-600 hover:bg-blue-700"
+                    className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
                   >
                     Create
                   </Button>

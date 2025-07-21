@@ -95,7 +95,8 @@ async def run_workflow(request: WorkflowRunRequest):
         chat = ChatLog(
           user_query=query,
           response=llm_response,
-          context_used=context
+          context_used=context,
+          workflow_id=request.workflow_id
         )
         
         session.add(chat)

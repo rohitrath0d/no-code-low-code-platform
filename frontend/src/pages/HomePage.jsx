@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Shield
 } from 'lucide-react';
+import Navigation from '../components/Navigation';
 
 const Home = () => {
   const [hoveredFeature, setHoveredFeature] = useState(null);
@@ -53,9 +54,11 @@ const Home = () => {
   const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+     
+
       {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      {/* <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -81,7 +84,9 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </nav>
+      </nav> */}
+
+      <Navigation />
 
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
@@ -124,7 +129,9 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
+              <div key={index} 
+                className="text-center"
+              >
                 <div className="flex justify-center mb-4">
                   <div className={`w-12 h-12 ${gradientColor} rounded-xl flex items-center justify-center`}>
                     <stat.icon className="w-6 h-6 text-white" />
@@ -139,7 +146,9 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20">
+      <section id="features" 
+        className="py-20"
+        >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Powerful Features</h2>
@@ -152,7 +161,7 @@ const Home = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index}
-                className={`transition-all duration-300 cursor-pointer group hover:shadow-xl hover:-translate-y-1 ${hoveredFeature === index ? 'shadow-glow' : ''}`}
+                className={`bg-gradient-to-r from-purple-100-100 via-purple-100 to-blue-100 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:-translate-y-1 ${hoveredFeature === index ? 'shadow-glow' : ''}`}
                 onMouseEnter={() => setHoveredFeature(index)}
                 onMouseLeave={() => setHoveredFeature(null)}
               >
@@ -191,11 +200,11 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/50 py-12">
+      <footer className="border-t bg-muted/50 py-12 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-2 mb-4 ">
                 <div className={`w-8 h-8 ${gradientColor} rounded-lg flex items-center justify-center`}>
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>

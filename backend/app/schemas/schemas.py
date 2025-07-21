@@ -9,6 +9,8 @@ from datetime import datetime
 class QueryRequest(BaseModel):
   query: str
   top_k: int = 3          # optional:   top_k: int = 3  -> default if client doesn't send it
+  custom_prompt: Optional[str] = ""
+  workflow_id: Optional[int] 
 
 class DocumentCreate(BaseModel):
     id: int
@@ -41,13 +43,13 @@ class Component(BaseModel):
 
 class WorkflowRunRequest(BaseModel):
     query: str
-    
     # use_knowledge_base: Optional[bool] = True
-    custom_prompt: Optional[str] = None
+    custom_prompt: Optional[str] = ""
     # top_k: Optional[int] = 3
-
     components: List[Component]
     top_k: Optional[int] = 1           #Default to 1 if not provided
+    workflow_id: Optional[int] = None 
+
     
 
 class WorkflowCreate(BaseModel):
