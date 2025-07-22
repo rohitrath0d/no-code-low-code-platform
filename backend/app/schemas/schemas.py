@@ -1,16 +1,19 @@
 from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
+from sqlmodel import Field
 
 # shemas.py -> contains req/res structure -> request/response validation (table=False)
 
 # Document
 
+
 class QueryRequest(BaseModel):
-  query: str
-  top_k: int = 3          # optional:   top_k: int = 3  -> default if client doesn't send it
-  custom_prompt: Optional[str] = ""
-  workflow_id: Optional[int] 
+    query: str
+    top_k: int = 3          # optional:   top_k: int = 3  -> default if client doesn't send it
+    custom_prompt: Optional[str] = ""
+    workflow_id: Optional[int]
+
 
 class DocumentCreate(BaseModel):
     id: int
@@ -25,10 +28,13 @@ class DocumentRead(DocumentCreate):
     uploaded_at: datetime
 
 # Chat Log
+
+
 class ChatLogCreate(BaseModel):
     user_query: str
     response: str
     context_used: str
+
 
 class ChatLogRead(ChatLogCreate):
     id: int
@@ -47,15 +53,15 @@ class WorkflowRunRequest(BaseModel):
     custom_prompt: Optional[str] = ""
     # top_k: Optional[int] = 3
     components: List[Component]
-    top_k: Optional[int] = 1           #Default to 1 if not provided
-    workflow_id: Optional[int] = None 
+    top_k: Optional[int] = 1  # Default to 1 if not provided
+    workflow_id: Optional[int] = None
 
-    
 
 class WorkflowCreate(BaseModel):
     name: str
-    description: Optional[str]
-    components: dict  
+    description: Optional[str] = None
+    components: Optional[dict] = Field(default_factory=dict)  # Make optional with empty dict default
+
 
 class WorkflowRead(WorkflowCreate):
     id: int
@@ -63,6 +69,11 @@ class WorkflowRead(WorkflowCreate):
     description: str
     components: dict
     created_at: datetime
-    
+
     class Config:
         orm_mode = True
+
+# class WorkflowSaveRequest(BaseModel):
+#     id: int
+#     nodes: List[dict]
+#     edges: List[dict]

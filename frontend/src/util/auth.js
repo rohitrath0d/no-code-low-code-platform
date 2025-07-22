@@ -72,3 +72,18 @@ export const getUserProfile = async () => {
   if (!res || !res.ok) return null;
   return await res.json();
 };
+
+
+export const fetchStacks = async () => {
+  const res = await fetch(`${API_BASE}/api/workflow`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  return await res.json();
+};
+
+
+export const createStack = async (stackData) => {
+  // ... similar implementation
+};

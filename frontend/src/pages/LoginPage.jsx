@@ -26,7 +26,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.detail || "Login failed");
 
       localStorage.setItem("token", data.access_token);
-      navigate("/");
+      navigate("/stack");
     } catch (err) {
       setError(err.message);
     }

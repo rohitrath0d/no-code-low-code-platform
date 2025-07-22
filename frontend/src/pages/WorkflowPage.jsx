@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -17,15 +17,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Play, MessageSquare, Send, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useEffect } from "react";
-import { getUserProfile } from "../util/auth"; //  this fetches /users/me
+import { getUserProfile, logout as authLogout } from '../util/auth';  // this fetches user me
 // import toast from "../components/ui/sonner"
 import { toast } from "sonner"
 import Navigation from "../components/Navigation";
+import { useWorkflow } from "../contexts/WorkflowContext";
 
 
-const initialNodes = [];
-const initialEdges = [];
+
+
+// const initialNodes = [];
+// const initialEdges = [];
 
 const COMPONENTS = [
   { label: "User Query", type: "userQuery" },
@@ -34,33 +36,163 @@ const COMPONENTS = [
   { label: "Output", type: "output" },
 ];
 
+
 export default function WorkflowPage() {
+
   const reactFlowWrapper = useRef(null);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  // const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  // const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  //  fetching context for the states over the component via context API 
+  const { nodes, setNodes, onNodesChange, edges, setEdges, onEdgesChange } = useWorkflow();
+
   const [chatOpen, setChatOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([]);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [chatLogs, setChatLogs] = useState([]);
+
+  const [workflowMeta, setWorkflowMeta] = useState({
+    name: 'Untitled Workflow',
+    description: ''
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
+
   const navigate = useNavigate();
   const { stackId } = useParams();
 
 
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     const profile = await getUserProfile();
+  //     setUser(profile);
+  //   };
+  //   fetchUser();
+  // }, []);
+
   useEffect(() => {
-    const fetchUser = async () => {
-      const profile = await getUserProfile();
-      setUser(profile);
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const profile = await getUserProfile();
+
+        if (!profile) {
+          throw new Error('No profile data returned');
+        }
+
+        setUser(profile);
+      } catch (err) {
+        console.error('Failed to fetch user profile:', err);
+        setError(err.message);
+
+        // Clear tokens if we got unauthorized response
+        if (err.message.includes('401')) {
+          authLogout();
+        }
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchUser();
-  }, []);
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  useEffect(() => {
+    const loadWorkflow = async () => {
+      try {
+
+        if (!stackId) {
+          throw new Error('Stack ID is required');
+        }
+
+        const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        if (!res.ok) throw new Error('Failed to load workflow');
+        const data = await res.json();
+        // setNodes(data.nodes);
+        // setEdges(data.edges);
+        // if (data.nodes) setNodes(data.nodes);
+
+        setWorkflowMeta({
+          name: data.name,
+          description: data.description || ''
+        });
+
+        // if (data.edges) setEdges(data.edges);
+        setNodes(data.components?.nodes || []);
+        setEdges(data.components?.edges || []);
+
+      } catch (err) {
+        console.error("Error loading workflow", err)
+        toast(err.message);
+        navigate('/stack');  // Redirect if there's an error
+      }
+    };
+
+    if (stackId) loadWorkflow();
+  }, [stackId]);
+
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    const autoSave = async () => {
+      if (!stackId) return;
+
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          },
+          body: JSON.stringify({
+            // name: "Current Workflow", // Update with your state
+            // name: form.name, // Update with your state
+            name: data.name, // Update with your state
+            // description: "Auto-saved workflow",
+            // description: form.description,
+            description: data.description,
+            components: {
+              nodes: nodes,
+              edges: edges
+            }
+          })
+        });
+        if (!res.ok) throw new Error("Auto-save failed");
+
+        const data = await res.json();
+
+        setWorkflowMeta({
+          name: data.name,
+          description: data.description || ''
+        });
+        setNodes(data.components?.nodes || []);
+        setEdges(data.components?.edges || []);
+
+        console.log("Auto-saved successfully");
+      } catch (err) {
+        console.error("Auto-save error:", err);
+      }
+    };
+
+    const interval = setInterval(autoSave, 30000);          // auto saving actions every 30 seconds
+    return () => clearInterval(interval);
+  }, [stackId, nodes, edges]);
 
   // fetching chat logs
   useEffect(() => {
     if (stackId && chatOpen) {
-      fetch(`http://localhost:8000/chatlogs/${stackId}`)
+      fetch(`http://127.0.0.1:8000/chat-logs/${stackId}`)
         .then(res => res.json())
         .then(setChatLogs)
         .catch(err => console.error(err));
@@ -97,7 +229,7 @@ export default function WorkflowPage() {
 
       const newNode = {
         // id: `${+new Date()}`,
-         id: `${Date.now()}`,
+        id: `${Date.now()}`,
         type,
         position,
         data: { label: `${type}` },
@@ -123,7 +255,7 @@ export default function WorkflowPage() {
 
     try {
       // const res = await fetch("http://localhost:8000/run-workflow", {
-      const res = await fetch("http://localhost:8000/run-workflow", {
+      const res = await fetch("http://127.0.0.1:8000/run-workflow", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -175,12 +307,16 @@ export default function WorkflowPage() {
   return (
 
 
-    <ReactFlowProvider>
-      <Navigation />
-      <div className="flex h-screen relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
 
-        {/* Sidebar */}
-        {/* <div className="w-64 bg-gray-100 border-r p-4">
+
+    <ReactFlowProvider>
+
+      <div className="flex flex-col h-screen overflow-hidden">
+        <Navigation />
+        <div className="flex flex-1 relative min-h-0 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
+
+          {/* Sidebar */}
+          {/* <div className="w-64 bg-gray-100 border-r p-4">
           <h2 className="text-xl font-semibold mb-4">Components</h2>
           <div className="space-y-2">
             {COMPONENTS.map((comp) => (
@@ -196,202 +332,208 @@ export default function WorkflowPage() {
           </div>
         </div> */}
 
-        {/* <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between "> */}
-        <div className="w-64 border-r p-4 flex flex-col justify-between bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-center">Components</h2>
-            <div className="space-y-2">
-              {COMPONENTS.map((comp) => (
-                <button
-                  key={comp.type}
-                  draggable
-                  onDragStart={(e) => onDragStart(e, comp.type)}
-                  // className="w-full px-4 py-2 bg-white rounded-xl border hover:bg-gray-50 cursor-move"
-                  className="w-full px-4 py-2 rounded-xl border-1 border-gray-700 cursor-move bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
-                >
-                  {comp.label}
-                </button>
-              ))}
-            </div>
-            {/* <Button
+          {/* <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between "> */}
+          <div className="w-64 border-r p-4 flex flex-col justify-between bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 overflow-y-auto">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-center">Components</h2>
+              <div className="space-y-2">
+                {COMPONENTS.map((comp) => (
+                  <button
+                    key={comp.type}
+                    draggable
+                    onDragStart={(e) => onDragStart(e, comp.type)}
+                    // className="w-full px-4 py-2 bg-white rounded-xl border hover:bg-gray-50 cursor-move"
+                    className="w-full px-4 py-2 text-xs rounded-xl border-1 border-gray-700 cursor-move bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
+                  >
+                    {comp.label}
+                  </button>
+                ))}
+              </div>
+              {/* <Button
               className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white"
               onClick={() => alert("Build triggered!")}
             >
               Build
             </Button> */}
+            </div>
+
+            {user && (
+              <div className="mt-3 text-sm text-gray-600 border-t pt-4">
+                <p className="font-medium text-gray-800">Logged in as:</p>
+                <p>{user.name}</p>
+                <p className="text-xs text-gray-500 mb-4">{user.email}</p>
+
+                <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
+                    >
+                      Logout  <LogOut />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+                    <DialogHeader>
+                      <DialogTitle>Confirm Logout</DialogTitle>
+                    </DialogHeader>
+                    <p>Are you sure you want to log out?</p>
+                    <DialogFooter className="mt-4 flex justify-end gap-2">
+                      <Button variant="ghost" onClick={() => setShowLogoutDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        className="bg-red-600 text-white hover:bg-red-700"
+                        onClick={() => {
+                          localStorage.removeItem("token");
+                          setShowLogoutDialog(false);
+                          // toast.success("Successfully logged out");
+                          toast("Successfully logged out");
+                          navigate("/login");
+                        }}
+                      >
+                        Yes, Logout
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
           </div>
 
-          {user && (
-            <div className="mt-3 text-sm text-gray-600 border-t pt-4">
-              <p className="font-medium text-gray-800">Logged in as:</p>
-              <p>{user.name}</p>
-              <p className="text-xs text-gray-500 mb-4">{user.email}</p>
+          {/* Canvas */}
+          {/* <div className="flex-1 h-full" ref={reactFlowWrapper}> */}
+          <div className="flex-1 min-w-0" ref={reactFlowWrapper}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              fitView
+            >
+              <Background gap={12} size={1} />
+              <Controls />
+              <MiniMap />
+            </ReactFlow>
+          </div>
 
-              <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
-                  >
-                    Logout  <LogOut />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Confirm Logout</DialogTitle>
-                  </DialogHeader>
-                  <p>Are you sure you want to log out?</p>
-                  <DialogFooter className="mt-4 flex justify-end gap-2">
-                    <Button variant="ghost" onClick={() => setShowLogoutDialog(false)}>
-                      Cancel
-                    </Button>
-                    <Button
-                      className="bg-red-600 text-white hover:bg-red-700"
-                      onClick={() => {
-                        localStorage.removeItem("token");
-                        setShowLogoutDialog(false);
-                        // toast.success("Successfully logged out");
-                        toast("Successfully logged out");
-                        navigate("/login");
-                      }}
-                    >
-                      Yes, Logout
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          )}
-        </div>
+          {/* Floating Action Buttons */}
+          <div className="absolute bottom-10 right-10 flex flex-col gap-3 z-10">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="rounded-full bg-green-200 text-green-900 hover:bg-green-300"
+              // onClick={() => alert('Build Stack feature not wired yet')}
+              // onClick={runLLM()}
+              onClick={runLLM}
+            >
+              <Play className="w-5 h-5" />
+            </Button>
 
-        {/* Canvas */}
-        <div className="flex-1 h-full" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Background gap={12} size={1} />
-            <Controls />
-            <MiniMap />
-          </ReactFlow>
-        </div>
+            <Dialog open={chatOpen} onOpenChange={setChatOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="rounded-full bg-blue-200 text-blue-900 hover:bg-blue-300"
+                // onClick={}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-[900px] max-w-none h-[80vh] flex flex-col bg-white p-0">
+                <DialogHeader className="border-b p-4 bg-white">
+                  <DialogTitle className="text-lg">GenAI Stack Chat</DialogTitle>
+                </DialogHeader>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
 
-        {/* Floating Action Buttons */}
-        <div className="absolute bottom-10 right-10 flex flex-col gap-3 z-10">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="rounded-full bg-green-200 text-green-900 hover:bg-green-300"
-            onClick={() => alert('Build Stack feature not wired yet')}
-          >
-            <Play className="w-5 h-5" />
-          </Button>
+                  <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto">
 
-          <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="rounded-full bg-blue-200 text-blue-900 hover:bg-blue-300"
-              >
-                <MessageSquare className="w-5 h-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="w-[900px] max-w-none h-[80vh] flex flex-col bg-white p-0">
-              <DialogHeader className="border-b p-4 bg-white">
-                <DialogTitle className="text-lg">GenAI Stack Chat</DialogTitle>
-              </DialogHeader>
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+                    {chatLogs.length > 0 && (
+                      <div className="border rounded p-3 text-sm bg-gray-50 mb-4 max-h-[250px] overflow-y-auto">
+                        <p className="text-gray-500 text-xs mb-2">Previous Logs</p>
+                        {chatLogs.map(log => (
+                          <div key={log.id} className="mb-3">
+                            <div className="font-semibold text-blue-900">You:</div>
+                            <div className="mb-1">{log.user_query}</div>
+                            <div className="font-semibold text-green-900">Bot:</div>
+                            <div>{log.response}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto">
-
-                  {chatLogs.length > 0 && (
-                    <div className="border rounded p-3 text-sm bg-gray-50 mb-4 max-h-[250px] overflow-y-auto">
-                      <p className="text-gray-500 text-xs mb-2">Previous Logs</p>
-                      {chatLogs.map(log => (
-                        <div key={log.id} className="mb-3">
-                          <div className="font-semibold text-blue-900">You:</div>
-                          <div className="mb-1">{log.user_query}</div>
-                          <div className="font-semibold text-green-900">Bot:</div>
-                          <div>{log.response}</div>
-                        </div>
-                      ))}
+                  {messages.length === 0 ? (
+                    <div className="text-center text-gray-500 mt-10">
+                      Ask something to get started...
                     </div>
+                  ) : (
+                    messages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
+                            ? 'bg-blue-100 text-blue-900'
+                            : message.isError
+                              ? 'bg-red-100 text-red-900'
+                              : 'bg-gray-50 text-gray-900 border border-gray-200'
+                            }`}
+                        >
+                          {message.isMarkdown ? (
+                            <div className="prose max-w-none">
+                              {message.text.split('\n').map((line, i) => (
+                                <React.Fragment key={i}>
+                                  {line.startsWith('# ') ? (
+                                    <h1 className="text-xl font-bold">{line.substring(2)}</h1>
+                                  ) : line.startsWith('## ') ? (
+                                    <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
+                                  ) : line.startsWith('1. ') ? (
+                                    <li className="list-decimal ml-5">{line.substring(3)}</li>
+                                  ) : line.startsWith('**') && line.endsWith('**') ? (
+                                    <strong>{line.substring(2, line.length - 2)}</strong>
+                                  ) : (
+                                    <p>{line}</p>
+                                  )}
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="whitespace-pre-wrap">{message.text}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
-
-                {messages.length === 0 ? (
-                  <div className="text-center text-gray-500 mt-10">
-                    Ask something to get started...
+                <div className="border-t p-4 bg-white">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      className="flex-1 border px-3 py-2 rounded text-sm"
+                      placeholder="Ask something..."
+                    />
+                    <Button onClick={runLLM} className="flex items-center gap-1">
+                      <Send className="w-4 h-4" />
+                      Send
+                    </Button>
                   </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
-                          ? 'bg-blue-100 text-blue-900'
-                          : message.isError
-                            ? 'bg-red-100 text-red-900'
-                            : 'bg-gray-50 text-gray-900 border border-gray-200'
-                          }`}
-                      >
-                        {message.isMarkdown ? (
-                          <div className="prose max-w-none">
-                            {message.text.split('\n').map((line, i) => (
-                              <React.Fragment key={i}>
-                                {line.startsWith('# ') ? (
-                                  <h1 className="text-xl font-bold">{line.substring(2)}</h1>
-                                ) : line.startsWith('## ') ? (
-                                  <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
-                                ) : line.startsWith('1. ') ? (
-                                  <li className="list-decimal ml-5">{line.substring(3)}</li>
-                                ) : line.startsWith('**') && line.endsWith('**') ? (
-                                  <strong>{line.substring(2, line.length - 2)}</strong>
-                                ) : (
-                                  <p>{line}</p>
-                                )}
-                                <br />
-                              </React.Fragment>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="whitespace-pre-wrap">{message.text}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="border-t p-4 bg-white">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1 border px-3 py-2 rounded text-sm"
-                    placeholder="Ask something..."
-                  />
-                  <Button onClick={runLLM} className="flex items-center gap-1">
-                    <Send className="w-4 h-4" />
-                    Send
-                  </Button>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
     </ReactFlowProvider>
+
   );
 }

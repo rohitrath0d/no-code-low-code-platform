@@ -4,7 +4,7 @@ from app.api.ping import router as ping_router
 from app.api.users import router as user_router
 from app.api.upload import router as upload_router
 from app.api.query import router as query_router
-from app.api.workflow import router as runworkflow_router
+from app.api.workflow import router as workflow_router
 from app.api.chat_logs import router as chatlogs_router
 from app.middlewares.auth import router as auth_router
 
@@ -21,7 +21,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # or ["*"] during development
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # or ["*"] during development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +41,7 @@ app.include_router(ping_router)
 app.include_router(user_router)
 app.include_router(upload_router)
 app.include_router(query_router)
-app.include_router(runworkflow_router)
+app.include_router(workflow_router)
 app.include_router(chatlogs_router)
 app.include_router(auth_router)
 

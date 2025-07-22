@@ -44,12 +44,12 @@ const Home = () => {
     }
   ];
 
-  const stats = [
-    { label: "Active Users", value: "10K+", icon: Users },
-    { label: "Workflows Created", value: "25K+", icon: Bot },
-    { label: "Success Rate", value: "99.9%", icon: TrendingUp },
-    { label: "Enterprise Ready", value: "100%", icon: Shield }
-  ];
+  // const stats = [
+  //   { label: "Active Users", value: "10K+", icon: Users },
+  //   { label: "Workflows Created", value: "25K+", icon: Bot },
+  //   { label: "Success Rate", value: "99.9%", icon: TrendingUp },
+  //   { label: "Enterprise Ready", value: "100%", icon: Shield }
+  // ];
 
   const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
 
@@ -111,21 +111,22 @@ const Home = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" asChild className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}>
-                <Link to="/workflow">
+                {/* <Link to="/workflow"> */}
+                <Link to="/register">
                   Start Building
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="glass-effect transition-smooth hover:shadow-md">
+              {/* <Button size="lg" variant="outline" className="glass-effect transition-smooth hover:shadow-md">
                 Watch Demo
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
+      {/* <section className="py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -143,11 +144,11 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Features Section */}
       <section id="features" 
-        className="py-20"
+        // className=""
         >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -233,7 +234,7 @@ const Home = () => {
               </ul>
             </div>
 
-            <div>
+            <div id='contact'>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li><a href="#" className="hover:text-foreground transition-smooth">Help Center</a></li>
@@ -244,7 +245,7 @@ const Home = () => {
           </div>
 
           <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 FlowCraft AI. All rights reserved.</p>
+            <p>&copy; 2025 FlowCraft AI. All rights reserved.</p>
           </div>
         </div>
       </footer>

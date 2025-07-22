@@ -1,6 +1,6 @@
 import { Handle, Position } from 'reactflow';
 import { useEffect, useState } from 'react';
-import { FolderUp } from "lucide-react"
+import { FolderUp, BookOpen   } from "lucide-react"
 
 export default function KnowledgeBaseNode({ data }) {             // data been receiving as prop - hence data.config being defined from here.
   const [file, setFile] = useState(null);
@@ -64,14 +64,15 @@ export default function KnowledgeBaseNode({ data }) {             // data been r
   return (
     // <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative">
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
-      <div className="flex items-center justify-between mb-3">
+      {/* <div className="flex items-center justify-between mb-3"> <FolderInput /> */}
+      <div className="flex gap-3 mb-3"> <BookOpen />
         <h3 className="text-lg font-bold text-gray-800">Knowledge Base</h3>
-        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        {/* <div className="w-3 h-3 rounded-full bg-green-500"></div> */}
       </div>
 
       <div className="space-y-3">
         <div>
-          <p className="text-xs text-gray-500 mb-1">Upload File:</p>
+          <p className="text-xs border-2 border-gray-300 bg-blue-100 rounded text-gray-700 mb-2">Let LLM search info in your files (pdf) </p>
           <div className="flex items-center gap-2">
             {/* <label className="text-xs font-medium text-gray-600">File for Knowledge Base</label> */}
             {/* <span className="text-xs text-gray-400">•</span> */}
@@ -138,8 +139,8 @@ export default function KnowledgeBaseNode({ data }) {             // data been r
         </div>
       </div>
 
-      <Handle type="target" position={Position.Top} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
-      <Handle type="source" position={Position.Bottom} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
+      <Handle type="source" position={Position.Right} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
+      <Handle type="target" position={Position.Left} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
     </div>
   );
 }

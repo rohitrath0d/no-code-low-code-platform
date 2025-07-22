@@ -6,9 +6,10 @@ from typing import List
 from sqlmodel import select
 
 
-router = APIRouter(prefix="/chatlogs", tags=["Chat Logs"])
+router = APIRouter(prefix="/api/chat-logs", tags=["Chat Logs"])
 
-@router.get("/chat-logs", response_model=List[ChatLogRead])
+# @router.get("/chat-logs", response_model=List[ChatLogRead])
+@router.get("/", response_model=List[ChatLogRead])
 def get_chat_logs():
     with next(get_Session()) as session:
         logs = session.exec(select(ChatLog).order_by(ChatLog.created_at.desc())).all()

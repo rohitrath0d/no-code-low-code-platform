@@ -1,8 +1,12 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from 'react';
 import { Sparkles, User, LogOut, Loader2, Save } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getUserProfile, logout as authLogout } from '../util/auth';
+import { toast } from "sonner"
+import { useWorkflow } from '../contexts/WorkflowContext';
+
 
 export default function Navigation() {
   const [user, setUser] = useState(null);
@@ -10,6 +14,13 @@ export default function Navigation() {
   const [error, setError] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [workflowName, setWorkflowName] = useState('Untitled Workflow');
+  const [workflowDescription, setWorkflowDescription] = useState('');
+
+  const { nodes, edges } = useWorkflow();
+  const { stackId } = useParams();
+
   const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
 
   useEffect(() => {
@@ -17,6 +28,13 @@ export default function Navigation() {
       try {
         setLoading(true);
         setError(null);
+
+        // Only fetch if we have a token
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
 
         const profile = await getUserProfile();
 
@@ -39,7 +57,66 @@ export default function Navigation() {
     };
 
     fetchUserProfile();
-  }, [navigate]);
+  }, [location.pathname]);
+
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({
+          // name: "Saved Workflow",
+          // name: form.name,
+          // name: data.name,
+          name: workflowName,
+          // description: "Manually saved",
+          // description: data.description,
+          description: workflowDescription,
+          components: {
+            // nodes: nodes,
+            edges: edges,
+            nodes: nodes.map(node => ({
+              id: node.id,
+              type: node.type,
+              position: node.position,
+              data: node.data,
+              width: node.width,
+              height: node.height
+            }))
+          }
+        })
+      });
+
+      if (!res.ok) throw new Error("Save failed");
+      toast("Workflow saved successfully!");
+    } catch (err) {
+      toast(err.message);
+    }
+  };
+
+  useEffect(() => {
+    const loadWorkflow = async () => {
+      if (!stackId) return;
+
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`);
+        const data = await res.json();
+
+        setWorkflowName(data.name || 'Untitled Workflow');
+        setWorkflowDescription(data.description || '');
+      } catch (err) {
+        console.error("Failed to load workflow metadata", err);
+      }
+    };
+
+    loadWorkflow();
+  }, [stackId]);
+
+
 
   const handleLogout = () => {
     authLogout();
@@ -47,7 +124,10 @@ export default function Navigation() {
     navigate('/login');
   };
 
-  const isWorkflowOrStack = ['/workflow', '/stack'].includes(location.pathname);
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
+  const isHomePage = location.pathname === '/';
+  const isStackPage = location.pathname === '/stack';
+  const isEditorPage = location.pathname.startsWith('/editor/');
 
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
@@ -58,28 +138,25 @@ export default function Navigation() {
             <div className={`w-8 h-8 ${gradientColor} rounded-lg flex items-center justify-center`}>
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            {!isWorkflowOrStack && (
-              <span className="text-xl font-bold">FlowCraft AI</span>
-            )}
+            <span className="text-xl font-bold">FlowCraft AI</span>
           </div>
 
-          {/* Middle - Navigation links (hidden on workflow/stack pages) */}
-          {!isWorkflowOrStack && !loading && (
+          {/* Middle - Navigation links (only show on home page) */}
+          {isHomePage && !loading && (
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-smooth">Features</a>
-              <a href="#about" className="text-muted-foreground hover:text-foreground transition-smooth">About</a>
               <a href="#contact" className="text-muted-foreground hover:text-foreground transition-smooth">Contact</a>
             </div>
           )}
 
           {/* Right side - Conditional buttons */}
           <div className="flex items-center space-x-4">
-            {isWorkflowOrStack && location.pathname === '/workflow' && (
-              <Button 
-              // className="bg-blue-600 hover:bg-blue-700 text-white"
-              className={`${gradientColor}`}
+            {isEditorPage && (
+              <Button
+                className={`${gradientColor}`}
+                onClick={handleSave}
               >
-                Save  <Save />
+                Save <Save className="ml-2" />
               </Button>
             )}
 
@@ -88,14 +165,14 @@ export default function Navigation() {
             ) : error ? (
               <Button
                 variant="ghost"
-                onClick={() => window.location.reload()}
+                onClick={() => navigate('/login')}
                 className="text-red-500"
               >
                 Retry
               </Button>
             ) : user ? (
               <div className="relative group">
-                <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300">
+                <button className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -106,20 +183,20 @@ export default function Navigation() {
                     <User className="w-4 h-4 text-gray-700" />
                   )}
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 hidden group-hover:block z-50">
+                  <div className="px-4 py-2 text-sm text-gray-700 font-semibold border-b">
                     {user.name || user.email}
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </button>
                 </div>
               </div>
-            ) : !isWorkflowOrStack && (
+            ) : !isAuthPage && !isStackPage && !isEditorPage && (
               <>
                 <Button variant="ghost" asChild>
                   <Link to="/login">Sign In</Link>

@@ -1,7 +1,8 @@
 import { Handle, Position } from 'reactflow';
 import { useEffect, useState } from 'react';
+import { Brain } from 'lucide-react';
 
-export default function LLMEngineNode({data}) {        // data been receiving as prop - hence data.config being defined from here.
+export default function LLMEngineNode({ data }) {        // data been receiving as prop - hence data.config being defined from here.
   const [model, setModel] = useState('gpt-4o');
   const [customPrompt, setCustomPrompt] = useState('You are a helpful PDF assistant. Use Web Search when content is not available.');
   const [temperature, setTemperature] = useState(0.75);
@@ -22,14 +23,18 @@ export default function LLMEngineNode({data}) {        // data been receiving as
   return (
     // <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative">
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-gray-800">LLM (OpenAI)</h3>
-        <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+      {/* <div className="flex items-center justify-between mb-3">  <Brain /> */}
+      <div className="flex gap-3 mb-3">  <Brain />
+        <h3 className="text-lg font-bold text-gray-800">LLM (Gemini AI)</h3>
+        {/* <div className="w-3 h-3 rounded-full bg-purple-500"></div> */}
       </div>
 
       <div className="space-y-3">
         <div>
-          <p className="text-xs text-gray-500 mb-1">Run a query with OpenAI LLM:</p>
+
+          {/* <p className="text-xs text-gray-500 mb-1">Run a query with OpenAI LLM:</p> */}
+          <p className="text-xs border-2 border-gray-300 bg-blue-100 rounded text-gray-700 mb-2">Run a query with OpenAI LLM:</p>
+
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Model</label>
@@ -96,8 +101,8 @@ export default function LLMEngineNode({data}) {        // data been receiving as
         </div>
       </div>
 
-      <Handle type="target" position={Position.Top} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
-      <Handle type="source" position={Position.Bottom} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
+      <Handle type="source" position={Position.Left} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
+      <Handle type="target" position={Position.Right} style={{ background: '#3B82F6', width: '10px', height: '10px' }} />
     </div>
   );
 }
