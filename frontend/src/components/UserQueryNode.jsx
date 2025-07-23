@@ -8,7 +8,7 @@ export default function UserQueryNode({ data, isConnectable }) {
 
   useEffect(() => {
     data.query = query;
-  }, [query]);
+  }, [query, data]);
 
   return (
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-72 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
@@ -26,6 +26,7 @@ export default function UserQueryNode({ data, isConnectable }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Write your query here"
+          aria-label="User query input"
         />
       </div>
 

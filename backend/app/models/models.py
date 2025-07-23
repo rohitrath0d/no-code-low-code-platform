@@ -36,12 +36,14 @@ class UserResponse(SQLModel):
 
 class Document(SQLModel, table=True):
     id: Optional[int] | None = Field(default=None, primary_key=True)
+    file_id: str = Field(default_factory=lambda: str(uuid.uuid4()), index=True)  # Add this line
     filename: str
     content: str
     # embedding: str  # Store as JSON string
-    embedding: List[float] = Field(
-        sa_column=Column(ARRAY(Float)))  # <-- native array
+    embedding: List[float] = Field(sa_column=Column(ARRAY(Float)))  # <-- native array
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+    user_id: int = Field(foreign_key="user.id")  # Add user association
+
 
 
 class ChatLog(SQLModel, table=True):

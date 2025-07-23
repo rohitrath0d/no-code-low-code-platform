@@ -130,8 +130,8 @@ export default function Navigation() {
   const isEditorPage = location.pathname.startsWith('/editor/');
 
   return (
-    <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 bg-gradient-to-r from-purple-200 via-purple-100 to-pink-200">
+      <div className="max-w-9xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left side - Logo */}
           <div className="flex items-center space-x-2">
@@ -166,13 +166,13 @@ export default function Navigation() {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/login')}
-                className="text-red-500"
+                className="text-white bg-red-500"
               >
-                Retry
+                Retry Login
               </Button>
             ) : user ? (
               <div className="relative group">
-                <button className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
+                <button className="w-10 h-10 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
                   {user.avatar ? (
                     <img
                       src={user.avatar}

@@ -2,17 +2,19 @@
 import React, { useCallback, useRef, useState, useEffect } from "react";
 import ReactFlow, {
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   addEdge,
-  useNodesState,
-  useEdgesState,
-  ReactFlowProvider
+  // useNodesState,
+  // useEdgesState,
+  ReactFlowProvider,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
 
 import nodeTypes from "../components/NodeRenderer"; // dynamic component renderer
+import edgeTypes from "@/components/EdgeRenderer";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Play, MessageSquare, Send, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
@@ -55,6 +57,8 @@ export default function WorkflowPage() {
   const [error, setError] = useState(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [chatLogs, setChatLogs] = useState([]);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [currentContext, setCurrentContext] = useState(null);
 
   const [workflowMeta, setWorkflowMeta] = useState({
     name: 'Untitled Workflow',
@@ -148,6 +152,7 @@ export default function WorkflowPage() {
     const autoSave = async () => {
       if (!stackId) return;
 
+      setIsSaving(true);
       try {
         const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
           method: "PUT",
@@ -158,10 +163,12 @@ export default function WorkflowPage() {
           body: JSON.stringify({
             // name: "Current Workflow", // Update with your state
             // name: form.name, // Update with your state
-            name: data.name, // Update with your state
+            // name: data.name, // Update with your state
+            name: workflowMeta.name, // // Use state directly
             // description: "Auto-saved workflow",
             // description: form.description,
-            description: data.description,
+            // description: data.description,
+            description: workflowMeta.description,
             components: {
               nodes: nodes,
               edges: edges
@@ -182,26 +189,55 @@ export default function WorkflowPage() {
         console.log("Auto-saved successfully");
       } catch (err) {
         console.error("Auto-save error:", err);
+      } finally {
+        setIsSaving(false)
       }
     };
 
     const interval = setInterval(autoSave, 30000);          // auto saving actions every 30 seconds
     return () => clearInterval(interval);
-  }, [stackId, nodes, edges]);
+  }, [stackId, nodes, edges, workflowMeta]);
 
   // fetching chat logs
   useEffect(() => {
     if (stackId && chatOpen) {
-      fetch(`http://127.0.0.1:8000/chat-logs/${stackId}`)
-        .then(res => res.json())
-        .then(setChatLogs)
-        .catch(err => console.error(err));
+      //   fetch(`http://127.0.0.1:8000/api/chat-logs/${stackId}`)
+      //     .then(res => res.json())
+      //     .then(setChatLogs)
+      //     .catch(err => console.error(err));
+      // }
+
+      const fetchChatLogs = async () => {
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/api/chat-logs/${stackId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (!res.ok) throw new Error(`HTTP Error Status: ${res.status}`);
+          const data = await res.json();
+          setChatLogs(data);
+        } catch (err) {
+          console.error("Failed to fetch chat logs", err);
+          toast("chat logs err: ", err);
+          setChatLogs([]); // Reset to empty array on error
+        }
+      };
+      fetchChatLogs();
     }
   }, [stackId, chatOpen]);
 
 
-  const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
+  const onConnect = (params) => {
+    setEdges((eds) => addEdge({
+      ...params, 
+      type: "dashed",
+      animated: false,
+    }, eds));
+  }
 
+  
   // const onDragStart = (event, type) => {
   const onDragStart = (event, nodeTypes) => {
     // event.dataTransfer.setData("application/reactflow", type);
@@ -245,19 +281,28 @@ export default function WorkflowPage() {
     event.dataTransfer.dropEffect = "move";
   };
 
-  const runLLM = async () => {
-    if (!query.trim()) return;
+  const handleChatSubmit = async () => {
+    if (!query.trim()) {
+      toast("Please enter a query");
+      return;
+    };
 
-    // Add user message
-    const userMessage = { text: query, sender: 'user' };
+    // Add user message to chat
+    const userMessage = {
+      text: query,
+      sender: 'user',
+      timestamp: new Date().toISOString()
+    };
     setMessages(prev => [...prev, userMessage]);
+    setChatHistory(prev => [...prev, { role: 'user', content: query }]);
     setQuery('');
 
     try {
       // const res = await fetch("http://localhost:8000/run-workflow", {
-      const res = await fetch("http://127.0.0.1:8000/run-workflow", {
+      const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -271,10 +316,18 @@ export default function WorkflowPage() {
           components: nodes.map(n => ({
             id: n.id,
             type: n.type,
-            config: n.data?.config || {}
-          }))
+            config: n.data?.config || {},
+            position: n.position              // including position for debugging
+          })),
+          chat_history: chatHistory // Send the full chat history
         })
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || 'Workflow execution failed');
+      }
+
       const data = await res.json();
       console.log(data);
 
@@ -286,28 +339,105 @@ export default function WorkflowPage() {
       // };
       // setMessages(prev => [...prev, aiMessage]);
 
+      // adding AI response
+      const aiMessage = {
+        text: data.llm_response,
+        sender: 'ai',
+        isMarkdown: true,
+        timestamp: new Date().toISOString(),
+        context: data.context_used
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: data.llm_response }]);
+      setCurrentContext(data.context_used);
+
     } catch (err) {
       console.error(err);
       const errorMessage = {
-        text: "Error connecting to the server",
+        text: err.message || "Error processing your request",
         sender: 'ai',
-        isError: true
+        isError: true,
+        timestamp: new Date().toISOString()
       };
-      // setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, errorMessage]);
+      toast.error(err.message);
+    }
+  };
+
+  const buildWorkflow = async () => {
+    try {
+      if (nodes.length === 0) {
+        toast.warning("Please add at least one node to the workflow");
+        return;
+      }
+
+      // Check if we have all required nodes connected
+      const hasOutputNode = nodes.some(n => n.type === 'output');
+      if (!hasOutputNode) {
+        toast.warning("Please add an Output node to your workflow");
+        return;
+      }
+
+      toast.info("Building and executing workflow...");
+
+      const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query: "Execute workflow", // Default query for build
+          custom_prompt: "",
+          top_k: 1,
+          workflow_id: parseInt(stackId),
+          components: nodes.map(n => ({
+            id: n.id,
+            type: n.type,
+            config: n.data?.config || {},
+            position: n.position
+          }))
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || 'Workflow execution failed');
+      }
+
+      const data = await res.json();
+      toast.success("Workflow executed successfully!");
+
+      // Find the output node and update it with the response
+      const outputNodeIndex = nodes.findIndex(n => n.type === 'output');
+      if (outputNodeIndex !== -1) {
+        const updatedNodes = [...nodes];
+        updatedNodes[outputNodeIndex] = {
+          ...updatedNodes[outputNodeIndex],
+          data: {
+            ...updatedNodes[outputNodeIndex].data,
+            llm_response: data.llm_response,
+            timestamp: new Date().toISOString()
+          }
+        };
+        setNodes(updatedNodes);
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message);
     }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      runLLM();
+      // runLLM();
+      handleChatSubmit();
     }
   };
 
   return (
-
-
-
 
     <ReactFlowProvider>
 
@@ -406,15 +536,37 @@ export default function WorkflowPage() {
             <ReactFlow
               nodes={nodes}
               edges={edges}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onDrop={onDrop}
               onDragOver={onDragOver}
-              nodeTypes={nodeTypes}
               fitView
+              snapToGrid={true}  // Add this
+              snapGrid={[15, 15]}  // Add this
+              connectionRadius={20}  // Increase connection radius
+
+              connectionLineStyle={{
+                strokeWidth: 2,
+                stroke: '#3B82F6',
+                strokeDasharray: '5,5', // Dashed effect
+              }}
+              connectionLineComponent={({ fromX, fromY, toX, toY }) => (
+                <g>
+                  <path
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth={2}
+                    strokeDasharray="5,5"
+                    d={`M${fromX},${fromY} C${fromX + 50},${fromY} ${toX - 50},${toY} ${toX},${toY}`}
+                  />
+                  <circle cx={toX} cy={toY} fill="#fff" r={3} stroke="#3B82F6" strokeWidth={1.5} />
+                </g>
+              )}
             >
-              <Background gap={12} size={1} />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={2} />
               <Controls />
               <MiniMap />
             </ReactFlow>
@@ -428,7 +580,9 @@ export default function WorkflowPage() {
               className="rounded-full bg-green-200 text-green-900 hover:bg-green-300"
               // onClick={() => alert('Build Stack feature not wired yet')}
               // onClick={runLLM()}
-              onClick={runLLM}
+              // onClick={runLLM}
+              onClick={buildWorkflow}
+              title="Build and execute workflow"
             >
               <Play className="w-5 h-5" />
             </Button>
@@ -439,7 +593,8 @@ export default function WorkflowPage() {
                   size="icon"
                   variant="ghost"
                   className="rounded-full bg-blue-200 text-blue-900 hover:bg-blue-300"
-                // onClick={}
+                  // onClick={}
+                  title="Chat with workflow"
                 >
                   <MessageSquare className="w-5 h-5" />
                 </Button>
@@ -465,67 +620,90 @@ export default function WorkflowPage() {
                         ))}
                       </div>
                     )}
+
+                    {messages.length === 0 ? (
+                      <div className="text-center text-gray-500 mt-10">
+                        Ask something to get started...
+                      </div>
+                    ) : (
+                      messages.map((message, index) => (
+                        <div
+                          key={index}
+                          className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
+                              ? 'bg-blue-100 text-blue-900'
+                              : message.isError
+                                ? 'bg-red-100 text-red-900'
+                                : 'bg-gray-50 text-gray-900 border border-gray-200'
+                              }`}
+                          >
+                            {message.isMarkdown ? (
+                              <div className="prose max-w-none">
+                                {message.text.split('\n').map((line, i) => (
+                                  <React.Fragment key={i}>
+                                    {line.startsWith('# ') ? (
+                                      <h1 className="text-xl font-bold">{line.substring(2)}</h1>
+                                    ) : line.startsWith('## ') ? (
+                                      <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
+                                    ) : line.startsWith('1. ') ? (
+                                      <li className="list-decimal ml-5">{line.substring(3)}</li>
+                                    ) : line.startsWith('**') && line.endsWith('**') ? (
+                                      <strong>{line.substring(2, line.length - 2)}</strong>
+                                    ) : (
+                                      <p>{line}</p>
+                                    )}
+                                    <br />
+                                  </React.Fragment>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="whitespace-pre-wrap">{message.text}</p>
+                            )}
+                            {message.context && message.sender === 'ai' && (
+                              <div className="mt-2 text-xs text-gray-500">
+                                <details>
+                                  <summary>Context used</summary>
+                                  <div className="mt-1 p-2 bg-gray-100 rounded">
+                                    {message.context}
+                                  </div>
+                                </details>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
 
-                  {messages.length === 0 ? (
-                    <div className="text-center text-gray-500 mt-10">
-                      Ask something to get started...
-                    </div>
-                  ) : (
-                    messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  <div className="border-t p-4 bg-white">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        // onKeyDown={handleKeyDown}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleChatSubmit();
+                          }
+                        }}
+                        className="flex-1 border px-3 py-2 rounded text-sm"
+                        placeholder="Ask something..."
+                        rows={1}
+                      />
+                      <Button
+                        // onClick={runLLM} 
+                        onClick={handleChatSubmit}
+                        className="flex items-center gap-1"
+                        disabled={!query.trim()}
                       >
-                        <div
-                          className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
-                            ? 'bg-blue-100 text-blue-900'
-                            : message.isError
-                              ? 'bg-red-100 text-red-900'
-                              : 'bg-gray-50 text-gray-900 border border-gray-200'
-                            }`}
-                        >
-                          {message.isMarkdown ? (
-                            <div className="prose max-w-none">
-                              {message.text.split('\n').map((line, i) => (
-                                <React.Fragment key={i}>
-                                  {line.startsWith('# ') ? (
-                                    <h1 className="text-xl font-bold">{line.substring(2)}</h1>
-                                  ) : line.startsWith('## ') ? (
-                                    <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
-                                  ) : line.startsWith('1. ') ? (
-                                    <li className="list-decimal ml-5">{line.substring(3)}</li>
-                                  ) : line.startsWith('**') && line.endsWith('**') ? (
-                                    <strong>{line.substring(2, line.length - 2)}</strong>
-                                  ) : (
-                                    <p>{line}</p>
-                                  )}
-                                  <br />
-                                </React.Fragment>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="whitespace-pre-wrap">{message.text}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className="border-t p-4 bg-white">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="flex-1 border px-3 py-2 rounded text-sm"
-                      placeholder="Ask something..."
-                    />
-                    <Button onClick={runLLM} className="flex items-center gap-1">
-                      <Send className="w-4 h-4" />
-                      Send
-                    </Button>
+                        <Send className="w-4 h-4" />
+                        Send
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </DialogContent>

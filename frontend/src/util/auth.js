@@ -67,12 +67,28 @@ export const authFetch = async (url, options = {}) => {
 };
 
 // Get user info from /users/me
+// export const getUserProfile = async () => {
+//   const res = await authFetch("/users/me");
+//   if (!res || !res.ok) return null;
+//   return await res.json();
+// };
+
 export const getUserProfile = async () => {
   const res = await authFetch("/users/me");
-  if (!res || !res.ok) return null;
-  return await res.json();
-};
+  if (!res || !res.ok) {
+    console.error("Response not OK:", res.status, await res.text());
+    return null;
+  }
 
+  try {
+    const json = await res.json();
+    if (!json) throw new Error("Empty profile JSON");
+    return json;
+  } catch (err) {
+    console.error("Failed to parse profile JSON:", err);
+    return null;
+  }
+};
 
 export const fetchStacks = async () => {
   const res = await fetch(`${API_BASE}/api/workflow`, {

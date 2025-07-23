@@ -25,11 +25,22 @@ class DocumentCreate(BaseModel):
 
 class DocumentRead(DocumentCreate):
     id: int
+    file_id: str
+    filename: str
+    content: str
+    embedding: List[float]  # Include if needed in response
     uploaded_at: datetime
 
+    class Config:
+        from_attributes = True  # This replaces the deprecated orm_mode
+
+class UploadResponse(BaseModel):
+    file_id: str
+    document: DocumentRead
+    status: str
+
+
 # Chat Log
-
-
 class ChatLogCreate(BaseModel):
     user_query: str
     response: str
@@ -60,7 +71,8 @@ class WorkflowRunRequest(BaseModel):
 class WorkflowCreate(BaseModel):
     name: str
     description: Optional[str] = None
-    components: Optional[dict] = Field(default_factory=dict)  # Make optional with empty dict default
+    # Make optional with empty dict default
+    components: Optional[dict] = Field(default_factory=dict)
 
 
 class WorkflowRead(WorkflowCreate):
