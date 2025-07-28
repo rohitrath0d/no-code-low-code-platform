@@ -251,7 +251,7 @@ export default function KnowledgeBaseNode({ data, isConnectable }) {            
         type="target"     // target - input
         position={Position.Left}
         style={{
-          background: '#3B82F6', width: '12px', height: '12px',
+          background: '#D000FF', width: '12px', height: '12px',
           zIndex: 10,  // Ensure it stays above other elements 
           border: '2px solid black'  // Adds visibility
         }}
@@ -265,7 +265,7 @@ export default function KnowledgeBaseNode({ data, isConnectable }) {            
         type="source"     // source- output  
         position={Position.Right}
         style={{
-          background: '#3B82F6',
+          background: '#D000FF',
           width: '12px',
           height: '12px',
           zIndex: 10,  // Ensure it stays above other elements

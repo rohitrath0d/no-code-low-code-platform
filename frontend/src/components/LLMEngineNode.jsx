@@ -5,46 +5,61 @@ import { Brain } from 'lucide-react';
 
 
 export default function LLMEngineNode({ data, isConnectable }) {        // data been receiving as prop - hence data.config being defined from here.
-  const [model, setModel] = useState('gpt-4o');
+  const [model, setModel] = useState('gemini-2.0-flash');
   const [customPrompt, setCustomPrompt] = useState('You are a helpful PDF assistant. Use Web Search when content is not available.');
   // const [temperature, setTemperature] = useState(0.75);
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [serpApiKey, setSerpApiKey] = useState('');
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
 
-  // useEffect(() => {
-  //   data.config = {
-  //     model,
-  //     customPrompt,
-  //     // temperature,
-  //     serpApiKey,
-  //     webSearchEnabled
-  //   };
-  //   // }, [model, customPrompt, temperature, serpApiKey, webSearchEnabled]);
-  // }, [model, customPrompt, serpApiKey, webSearchEnabled, data]);
-
-  // Initialize from data.config if available
-  useEffect(() => {
-    if (data.config) {
-      setModel(data.config.model || 'gemini-pro');
-      setCustomPrompt(data.config.customPrompt || 'You are a helpful PDF assistant. Use Web Search when content is not available.');
-      setSerpApiKey(data.config.serpApiKey || '');
-      setGeminiApiKey(data.config.geminiApiKey || ''); // Initialize Gemini key
-      setWebSearchEnabled(data.config.webSearchEnabled || false);
-    }
-  }, [data.config]);
-
-  // Update data.config whenever any config changes
   useEffect(() => {
     data.config = {
       model,
       customPrompt,
+      geminiApiKey,
+      // temperature,
       serpApiKey,
-      geminiApiKey, // Include Gemini key in config
       webSearchEnabled
     };
-  }, [model, customPrompt, serpApiKey, geminiApiKey, webSearchEnabled, data]);
+    // }, [model, customPrompt, temperature, serpApiKey, webSearchEnabled]);
+  }, [model, customPrompt, geminiApiKey, serpApiKey, webSearchEnabled, data]);
 
+  // Initialize from data.config if available
+  // useEffect(() => {
+  //   if (data.config) {
+  //     setModel(data.config.model || 'gemini-pro');
+  //     setCustomPrompt(data.config.customPrompt || 'You are a helpful PDF assistant. Use Web Search when content is not available.');
+  //     setSerpApiKey(data.config.serpApiKey || '');
+  //     setGeminiApiKey(data.config.geminiApiKey || ''); // Initialize Gemini key
+  //     setWebSearchEnabled(data.config.webSearchEnabled || false);
+  //   }
+  // }, [data.config]);
+
+  // Update data.config whenever any config changes
+  // useEffect(() => {
+  //   data.config = {
+  //     model,
+  //     customPrompt,
+  //     serpApiKey,
+  //     geminiApiKey, // Include Gemini key in config
+  //     webSearchEnabled
+  //   };
+  // }, [model, customPrompt, serpApiKey, geminiApiKey, webSearchEnabled, data]);
+
+  // useEffect(() => {
+  //   // Create a new config object without mutating the original
+  //   const newConfig = {
+  //     model,
+  //     customPrompt,
+  //     serpApiKey,
+  //     webSearchEnabled
+  //   };
+
+  //   // Only update if config actually changed
+  //   if (JSON.stringify(data.config) !== JSON.stringify(newConfig)) {
+  //     data.config = newConfig;
+  //   }
+  // }, [model, customPrompt, serpApiKey, webSearchEnabled, data]);
 
   // Validate API key format
   const validateApiKey = (key) => {
@@ -58,7 +73,8 @@ export default function LLMEngineNode({ data, isConnectable }) {        // data 
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
       {/* <div className="flex items-center justify-between mb-3">  <Brain /> */}
       <div className="flex gap-3 mb-3">  <Brain />
-        <h3 className="text-lg font-bold text-gray-800">LLM (Gemini AI)</h3>
+        {/* <h3 className="text-lg font-bold text-gray-800">LLM (Gemini AI)</h3> */}
+        <h3 className="text-lg font-bold text-gray-800">LLM Engine</h3>
         {/* <div className="w-3 h-3 rounded-full bg-purple-500"></div> */}
       </div>
 
@@ -77,7 +93,8 @@ export default function LLMEngineNode({ data, isConnectable }) {        // data 
                 onChange={(e) => setModel(e.target.value)}
                 className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
-                <option value="gpt-4o"> Gemini 2.0 Flash</option>
+                {/* <option value="gpt-4o"> Gemini 2.0 Flash</option> */}
+                <option value="gpt-4o">gemini-2.0-flash</option>
                 {/* <option value="gemini-1.5-pro">Gemini 1.5 Pro</option> */}
                 {/* <option value="gemini-flash">Gemini Flash</option> */}
                 {/* <option value="gpt-3.5-turbo">GPT-3.5 Turbo (not available)</option> */}
@@ -148,16 +165,36 @@ export default function LLMEngineNode({ data, isConnectable }) {        // data 
       </div>
 
       <Handle
+        id='llm-input'
         type="target"
         position={Position.Left}
-        style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+        // style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+        style={{
+          background: '#D000FF',
+          width: '12px',
+          height: '12px',
+          zIndex: 10,  // Ensure it stays above other elements
+          border: '2px solid black'
+        }}
         isConnectable={isConnectable}
+        className="!left-[-6px]" // Adjust position to be just outside node
+      // isConnectable={isConnectable}
       />
       <Handle
+        id='llm-output'
         type="source"
         position={Position.Right}
-        style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+        // style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+        style={{
+          background: '#D000FF',
+          width: '12px',
+          height: '12px',
+          zIndex: 10,  // Ensure it stays above other elements
+          border: '2px solid black'
+        }}
         isConnectable={isConnectable}
+        className="!right-[-6px]" // Adjust position to be just outside node
+      // isConnectable={isConnectable}
       />
     </div>
   );

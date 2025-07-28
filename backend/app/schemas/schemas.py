@@ -52,6 +52,10 @@ class ChatLogRead(ChatLogCreate):
     created_at: datetime
 
 
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
 class Component(BaseModel):
     id: str
     type: str  # e.g., 'user_query', 'knowledge_base', 'llm_engine', 'output'
@@ -66,6 +70,7 @@ class WorkflowRunRequest(BaseModel):
     components: List[Component]
     top_k: Optional[int] = 1  # Default to 1 if not provided
     workflow_id: Optional[int] = None
+    chat_history: Optional[List[ChatMessage]] = None
 
 
 class WorkflowCreate(BaseModel):

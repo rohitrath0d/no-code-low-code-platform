@@ -30,7 +30,7 @@ export default function CustomConnectionLine({
           ...style,
           strokeWidth: 2,
           strokeDasharray: '5,5', // This creates the dashed effect
-          stroke: '#3B82F6',
+          stroke: '#D000FF',
         }}
       />
     </>

@@ -32,9 +32,12 @@ import { useWorkflow } from "../contexts/WorkflowContext";
 // const initialEdges = [];
 
 const COMPONENTS = [
-  { label: "User Query", type: "userQuery" },
-  { label: "Knowledge Base", type: "knowledgeBase" },
-  { label: "LLM (OpenAI)", type: "llmEngine" },
+  // { label: "User Query", type: "userQuery" },
+  { label: "User Query", type: "query" },
+  // { label: "Knowledge Base", type: "knowledgeBase" },
+  { label: "Knowledge Base", type: "knowledge_base" },
+  // { label: "LLM (OpenAI)", type: "llmEngine" },
+  { label: "LLM Engine", type: "llm_engine" },
   { label: "Output", type: "output" },
 ];
 
@@ -196,7 +199,7 @@ export default function WorkflowPage() {
 
     const interval = setInterval(autoSave, 30000);          // auto saving actions every 30 seconds
     return () => clearInterval(interval);
-  }, [stackId, nodes, edges, workflowMeta]);
+  }, [stackId, nodes, edges, workflowMeta, setEdges, setNodes]);
 
   // fetching chat logs
   useEffect(() => {
@@ -208,7 +211,14 @@ export default function WorkflowPage() {
       // }
 
       const fetchChatLogs = async () => {
+        if (!stackId || !chatOpen) return;
         try {
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
           const res = await fetch(`http://127.0.0.1:8000/api/chat-logs/${stackId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -231,13 +241,13 @@ export default function WorkflowPage() {
 
   const onConnect = (params) => {
     setEdges((eds) => addEdge({
-      ...params, 
+      ...params,
       type: "dashed",
       animated: false,
     }, eds));
   }
 
-  
+
   // const onDragStart = (event, type) => {
   const onDragStart = (event, nodeTypes) => {
     // event.dataTransfer.setData("application/reactflow", type);
@@ -306,7 +316,7 @@ export default function WorkflowPage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          query,
+          query: 'Execute workflow',
           custom_prompt: "",
           top_k: 1,
           workflow_id: parseInt(stackId),
@@ -417,6 +427,8 @@ export default function WorkflowPage() {
           data: {
             ...updatedNodes[outputNodeIndex].data,
             llm_response: data.llm_response,
+            context_used: data.context_used,
+            results: data.results,
             timestamp: new Date().toISOString()
           }
         };
@@ -557,7 +569,7 @@ export default function WorkflowPage() {
                 <g>
                   <path
                     fill="none"
-                    stroke="#3B82F6"
+                    stroke="#D000FF"
                     strokeWidth={2}
                     strokeDasharray="5,5"
                     d={`M${fromX},${fromY} C${fromX + 50},${fromY} ${toX - 50},${toY} ${toX},${toY}`}

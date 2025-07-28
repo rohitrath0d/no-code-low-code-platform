@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException
 # from pydantic import BaseModel
 from app.services.embedding_model_huggingface import generate_embedding
 from app.services.vectordb_store import query_similar_documents
-from app.services.gemini_ai_llm import gemini_chat_llm
+# from app.services.gemini_ai_llm import gemini_chat_llm
+from app.services.gemini_ai_llm import gemini_client
 from app.models.models import ChatLog, Workflow
 # from app.schemas.schemas import ChatLogCreate
 from app.core.database import get_Session
@@ -92,8 +93,9 @@ async def run_workflow(request: WorkflowRunRequest):
         llm_config = llm_component.config or {}
         model = llm_config.get("model", "gemini-2.0-flash")
         gemini_api_key = llm_config.get("geminiApiKey", "")
-        use_serpapi = llm_config.get("use_serpapi", False)
-
+        # use_serpapi = llm_config.get("use_serpapi", False)
+        use_serpapi = llm_config.get("webSearchEnabled", False)
+        
         # Validate Gemini API key
         if not gemini_api_key:
             raise HTTPException(status_code=400, detail="Gemini API key is required")
@@ -102,15 +104,15 @@ async def run_workflow(request: WorkflowRunRequest):
             raise HTTPException(status_code=400, detail="Invalid Gemini API key format")
         
         # Configure Gemini
-        configure(api_key=gemini_api_key)
-            
-        # Step 3: Optional SerpAPI Web Context
+        # configure(api_key=gemini_api_key)         --already did in ;ine 94
+        
+        # Get web context if enabled
         serp_context = ""
         if use_serpapi:
-            # serp_context = serpapi_search(query)
             serp_api_key = llm_config.get("serpApiKey", "")
             if not serp_api_key:
                 raise HTTPException(status_code=400, detail="SerpAPI key is required when web search is enabled")
+            serp_results = serpapi_search(query, serp_api_key)
             serp_context = serpapi_search(query, serp_api_key)
             
         # Build the prompt with chat history if available
@@ -133,28 +135,31 @@ async def run_workflow(request: WorkflowRunRequest):
         if request.custom_prompt:
             final_prompt += f"Custom Prompt:\n{request.custom_prompt}\n\n"
         if llm_config.get("customPrompt"):
-            final_prompt += f"System Prompt:\n{llm_config['customPrompt']}\n\n"
+            final_prompt += f"System Instructions:\n{llm_config['customPrompt']}\n\n"
 
         # prompt = request.custom_prompt or f"User asked :{request.query}\n\nRelevant context:\n{context}"
         
         conversation.append({"role": "user", "parts": [final_prompt]})
         
         # Initialize Gemini model
-        try:
-            gemini_model = GenerativeModel(model)
-            chat = gemini_model.start_chat(history=conversation)
-            response = chat.send_message(final_prompt)
-            llm_response = response.text
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"LLM processing error: {str(e)}")
+        # try:
+        #     # gemini_model = GenerativeModel(model)
+        #     gemini_model = model
+        #     chat = gemini_model.start_chat(history=conversation)
+        #     response = chat.send_message(final_prompt)
+        #     llm_response = response.text
+        # except Exception as e:
+        #     raise HTTPException(status_code=400, detail=f"LLM processing error: {str(e)}")
 
-        llm_response = gemini_chat_llm(
+        # llm_response = gemini_chat_llm(
+        llm_response = gemini_client.generate_response(
             query=request.query,
             context=context,
             # prompt=prompt
             prompt=final_prompt,
             model=model,
-            api_key=gemini_api_key
+            api_key=gemini_api_key,
+            chat_history=getattr(request, 'chat_history', None)
         )
 
         # saving/storing chat log
@@ -186,6 +191,8 @@ async def run_workflow(request: WorkflowRunRequest):
             "results": results
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Workflow failed: {str(e)}")

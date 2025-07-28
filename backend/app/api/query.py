@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 # from pydantic import BaseModel
 from app.services.embedding_model_huggingface import generate_embedding
 from app.services.vectordb_store import query_similar_documents
-from app.services.gemini_ai_llm import gemini_chat_llm
+# from app.services.gemini_ai_llm import gemini_chat_llm
 # from app.models.chat_log import ChatLog
 from app.models.models import ChatLog
 # from app.schemas.schemas import ChatLogCreate

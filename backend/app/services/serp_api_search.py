@@ -1,7 +1,8 @@
 from serpapi import GoogleSearch
 import os
 
-def serpapi_search(query: str) -> str:
+def serpapi_search(query: str, api_key: str) -> str:
+    """Perform a search using SerpAPI"""
     params = {
         "q": query,
         "api_key": os.getenv("SERPAPI_API_KEY"),

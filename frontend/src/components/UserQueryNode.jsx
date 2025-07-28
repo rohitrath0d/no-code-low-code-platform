@@ -32,11 +32,19 @@ export default function UserQueryNode({ data, isConnectable }) {
 
       <div>
         <Handle
+          // id=''
           type="source"
           position={Position.Right}
           id="query"
-          style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+          // style={{ background: '#3B82F6', width: '10px', height: '10px' }}
+          style={{
+            background: '#D000FF', width: '12px', height: '12px',
+            zIndex: 10,  // Ensure it stays above other elements 
+            border: '2px solid black'  // Adds visibility
+          }}
           isConnectable={isConnectable}
+          className="!right-[-6px]"
+          // isConnectable={isConnectable}
         />
       </div>
 
