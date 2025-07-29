@@ -16,7 +16,7 @@ import "reactflow/dist/style.css";
 import nodeTypes from "../components/NodeRenderer"; // dynamic component renderer
 import edgeTypes from "@/components/EdgeRenderer";
 import { useNavigate, useParams } from 'react-router-dom';
-import { Play, MessageSquare, Send, LogOut } from "lucide-react";
+import { Play, MessageSquare, Send, LogOut, BotMessageSquare, CircleUser, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { getUserProfile, logout as authLogout } from '../util/auth';  // this fetches user me
@@ -455,7 +455,7 @@ export default function WorkflowPage() {
 
       <div className="flex flex-col h-screen overflow-hidden">
         <Navigation />
-        <div className="flex flex-1 relative min-h-0 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
+        <div className="flex flex-1 relative min-h-0 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
 
           {/* Sidebar */}
           {/* <div className="w-64 bg-gray-100 border-r p-4">
@@ -476,8 +476,31 @@ export default function WorkflowPage() {
 
           {/* <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between "> */}
           <div className="w-64 border-r p-4 flex flex-col justify-between bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 overflow-y-auto">
+
+
+
+
             <div>
-              <h2 className="text-xl font-semibold mb-4 text-center">Components</h2>
+
+              {/* SET THE STACK CHAT NAME HERE... */}
+
+              {/* <h2 className="font-semibold text-lg">{stack.name}</h2> */}
+              {/* Stack Name Header */}
+              <div className="flex flex-row items-center border mt-3 rounded-xl border-gray-500 mb-2">
+              <h2 className="text-xl px-2 p-1 font-semibold text-lg text-gray-800">
+                {workflowMeta.name || 'Untitled Workflow'}
+              </h2>
+              {/* {workflowMeta.description && (
+                <p className="text-xs text-gray-500 mt-1 text-center">
+                  {workflowMeta.description}
+                </p>
+              )} */}
+
+              <Edit className="h-4 w-5 ml-32"/>
+              </div>
+
+              <h2 className="text-xl font-semibold mt-5 mb-4 text-lg">Components</h2>
+
               <div className="space-y-2">
                 {COMPONENTS.map((comp) => (
                   <button
@@ -599,7 +622,10 @@ export default function WorkflowPage() {
               <Play className="w-5 h-5" />
             </Button>
 
-            <Dialog open={chatOpen} onOpenChange={setChatOpen}>
+            <Dialog
+              className="rounded-full"
+              open={chatOpen}
+              onOpenChange={setChatOpen}>
               <DialogTrigger asChild>
                 <Button
                   size="icon"
@@ -611,85 +637,101 @@ export default function WorkflowPage() {
                   <MessageSquare className="w-5 h-5" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[900px] max-w-none h-[80vh] flex flex-col bg-white p-0">
-                <DialogHeader className="border-b p-4 bg-white">
-                  <DialogTitle className="text-lg">GenAI Stack Chat</DialogTitle>
+              <DialogContent className="w-[1250px] h-[82vh] bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+                <DialogHeader className="rounded-xl bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+                  <DialogTitle className="text-lg font-bold text-fuchsia-600">GenAI Stack Chat</DialogTitle>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+                <div className="flex-1 w-[1200px] bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+                  {/* <div className="p-4 bg-white w-[700px] "> */}
 
-                  <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto">
+                  {/* <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto"> */}
+                  <div className="text-sm h-[450px] overflow-x-auto overflow-y-auto">
 
-                    {chatLogs.length > 0 && (
-                      <div className="border rounded p-3 text-sm bg-gray-50 mb-4 max-h-[250px] overflow-y-auto">
-                        <p className="text-gray-500 text-xs mb-2">Previous Logs</p>
-                        {chatLogs.map(log => (
-                          <div key={log.id} className="mb-3">
-                            <div className="font-semibold text-blue-900">You:</div>
-                            <div className="mb-1">{log.user_query}</div>
-                            <div className="font-semibold text-green-900">Bot:</div>
-                            <div>{log.response}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div>
+                      {chatLogs.length > 0 && (
+                        // <div className="w-[1200px] border rounded p-3 text-sm bg-gray-50 mb-4 max-h-[300px]">
+                        <div className=" p-5 text-sm">
+                          <p className="text-gray-500 font-semibold text-xs mb-2">Previous Logs</p>
+                          {chatLogs.map(log => (
+                            <div key={log.id} className="mb-3">
+                              {/* <div className="flex flex-row gap-2 font-semibold text-blue-900"> <CircleUser /> You:</div> */}
+                              <div className="flex flex-row gap-2 font-semibold rounded-xl p-2 mb-2 bg-blue-100 text-blue-900"> <CircleUser /> You:   <div className="">{log.user_query}</div> </div>
 
-                    {messages.length === 0 ? (
-                      <div className="text-center text-gray-500 mt-10">
-                        Ask something to get started...
-                      </div>
-                    ) : (
-                      messages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
-                              ? 'bg-blue-100 text-blue-900'
-                              : message.isError
-                                ? 'bg-red-100 text-red-900'
-                                : 'bg-gray-50 text-gray-900 border border-gray-200'
-                              }`}
-                          >
-                            {message.isMarkdown ? (
-                              <div className="prose max-w-none">
-                                {message.text.split('\n').map((line, i) => (
-                                  <React.Fragment key={i}>
-                                    {line.startsWith('# ') ? (
-                                      <h1 className="text-xl font-bold">{line.substring(2)}</h1>
-                                    ) : line.startsWith('## ') ? (
-                                      <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
-                                    ) : line.startsWith('1. ') ? (
-                                      <li className="list-decimal ml-5">{line.substring(3)}</li>
-                                    ) : line.startsWith('**') && line.endsWith('**') ? (
-                                      <strong>{line.substring(2, line.length - 2)}</strong>
-                                    ) : (
-                                      <p>{line}</p>
-                                    )}
-                                    <br />
-                                  </React.Fragment>
-                                ))}
+                              <div className="bg-pink-100 text-gray-900 rounded-xl">
+                                <div className="flex flex-row gap-2 p-2 font-semibold"> <BotMessageSquare /> AI Bot:</div>
+                                <div className="font-semibold gap-2 p-2">{log.response}</div>
                               </div>
-                            ) : (
-                              <p className="whitespace-pre-wrap">{message.text}</p>
-                            )}
-                            {message.context && message.sender === 'ai' && (
-                              <div className="mt-2 text-xs text-gray-500">
-                                <details>
-                                  <summary>Context used</summary>
-                                  <div className="mt-1 p-2 bg-gray-100 rounded">
-                                    {message.context}
-                                  </div>
-                                </details>
-                              </div>
-                            )}
-                          </div>
+
+                            </div>
+                          ))}
                         </div>
-                      ))
-                    )}
+                      )}
+                    </div>
+
+                    <div>
+
+                      {/* {messages.length === 0 ? ( */}
+                      {messages.length < 0 ? (
+                        <div className="text-center text-gray-500 mt-10">
+                          Ask something to get started...
+                        </div>
+                      ) : (
+                        messages.map((message, index) => (
+                          <div
+                            key={index}
+                            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} p-5 mb-2`}
+                          >
+                            <div
+                              // className={`max-w-[90%] rounded-lg p-4 ${message.sender === 'user'
+                              className={` rounded-lg p-4 ${message.sender === 'user'
+                                ? 'bg-blue-200 text-black-900 mb-2 font-semibold'
+                                : message.isError
+                                  ? 'bg-red-100 text-red-900 mb-2'
+                                  : 'bg-pink-100 text-gray-900 border border-gray-200'
+                                }`}
+                            >
+                              {message.isMarkdown ? (
+                                <div className="prose max-w-none">
+                                  {message.text.split('\n').map((line, i) => (
+                                    <React.Fragment key={i}>
+                                      {line.startsWith('# ') ? (
+                                        <h1 className="text-xl font-bold">{line.substring(2)}</h1>
+                                      ) : line.startsWith('## ') ? (
+                                        <h2 className="text-lg font-semibold">{line.substring(3)}</h2>
+                                      ) : line.startsWith('1. ') ? (
+                                        <li className="list-decimal ml-5">{line.substring(3)}</li>
+                                      ) : line.startsWith('**') && line.endsWith('**') ? (
+                                        <strong>{line.substring(2, line.length - 2)}</strong>
+                                      ) : (
+                                        <p>{line}</p>
+                                      )}
+                                      <br />
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="whitespace-pre-wrap">{message.text}</p>
+                              )}
+                              {message.context && message.sender === 'ai' && (
+                                <div className="mt-2 text-xs text-gray-500">
+                                  <details>
+                                    <summary>Context used</summary>
+                                    <div className="mt-1 p-2 bg-gray-100 rounded">
+                                      {message.context}
+                                    </div>
+                                  </details>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+
+                    </div>
+
                   </div>
 
-                  <div className="border-t p-4 bg-white">
+                  <div className="p-4 bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -702,14 +744,14 @@ export default function WorkflowPage() {
                             handleChatSubmit();
                           }
                         }}
-                        className="flex-1 border px-3 py-2 rounded text-sm"
+                        className="flex-1 border px-3 rounded text-sm"
                         placeholder="Ask something..."
                         rows={1}
                       />
                       <Button
                         // onClick={runLLM} 
                         onClick={handleChatSubmit}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 bg-gradient-to-r from-primary via-purple-500 to-blue-500"
                         disabled={!query.trim()}
                       >
                         <Send className="w-4 h-4" />
@@ -717,6 +759,7 @@ export default function WorkflowPage() {
                       </Button>
                     </div>
                   </div>
+                  {/* </div> */}
                 </div>
               </DialogContent>
             </Dialog>
