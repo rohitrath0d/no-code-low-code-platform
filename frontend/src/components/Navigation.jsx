@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Sparkles, User, LogOut, Loader2, Save } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getUserProfile, logout as authLogout } from '../util/auth';
+import { getUserProfile, logout as authLogout, API_BASE_URL } from '../util/auth';
 import { toast } from "sonner"
 import { useWorkflow } from '../contexts/WorkflowContext';
 
@@ -62,7 +62,8 @@ export default function Navigation() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+      // const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/workflow/${stackId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +104,8 @@ export default function Navigation() {
       if (!stackId) return;
 
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`);
+        // const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`);
+        const res = await fetch(`${API_BASE_URL}/api/workflow/load/${stackId}`);
         const data = await res.json();
 
         setWorkflowName(data.name || 'Untitled Workflow');

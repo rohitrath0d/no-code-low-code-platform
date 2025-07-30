@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserIcon } from "lucide-react";
+import { API_BASE_URL } from "@/util/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,11 +17,14 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/auth/login", {
+      // const res = await fetch("http://127.0.0.1:8000/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email: form.email, password: form.password }),
       });
+      console.log(res);
+      
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");

@@ -19,7 +19,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Play, MessageSquare, Send, LogOut, BotMessageSquare, CircleUser, Edit } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { getUserProfile, logout as authLogout } from '../util/auth';  // this fetches user me
+import { getUserProfile, logout as authLogout, API_BASE_URL } from '../util/auth';  // this fetches user me
 // import toast from "../components/ui/sonner"
 import { toast } from "sonner"
 import Navigation from "../components/Navigation";
@@ -119,7 +119,8 @@ export default function WorkflowPage() {
           throw new Error('Stack ID is required');
         }
 
-        const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`, {
+        // const res = await fetch(`http://127.0.0.1:8000/api/workflow/load/${stackId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/workflow/load/${stackId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
@@ -157,7 +158,8 @@ export default function WorkflowPage() {
 
       setIsSaving(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+        // const res = await fetch(`http://127.0.0.1:8000/api/workflow/${stackId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/workflow/${stackId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -219,7 +221,8 @@ export default function WorkflowPage() {
             throw new Error('No authentication token found');
           }
 
-          const res = await fetch(`http://127.0.0.1:8000/api/chat-logs/${stackId}`, {
+          // const res = await fetch(`http://127.0.0.1:8000/api/chat-logs/${stackId}`, {
+          const res = await fetch(`${API_BASE_URL}/api/chat-logs/${stackId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
               'Content-Type': 'application/json'
@@ -309,7 +312,8 @@ export default function WorkflowPage() {
 
     try {
       // const res = await fetch("http://localhost:8000/run-workflow", {
-      const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
+      // const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
+      const res = await fetch(`${API_BASE_URL}/api/workflow/run-workflow`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -390,7 +394,8 @@ export default function WorkflowPage() {
 
       toast.info("Building and executing workflow...");
 
-      const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
+      // const res = await fetch("http://127.0.0.1:8000/api/workflow/run-workflow", {
+      const res = await fetch(`${API_BASE_URL}/api/workflow/run-workflow`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,

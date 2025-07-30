@@ -264,7 +264,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getUserProfile } from '../util/auth';
+import { API_BASE_URL, getUserProfile } from '../util/auth';
 import Navigation from '../components/Navigation';
 import { toast } from "sonner"
 import { SquarePen } from 'lucide-react';
@@ -288,7 +288,8 @@ export default function StacksPage() {
         setFetchError(null);
 
         // const res = await fetch("http://127.0.0.1:8000/workflow", {
-        const res = await fetch("http://127.0.0.1:8000/api/workflow/get-workflow", {
+        // const res = await fetch("http://127.0.0.1:8000/api/workflow/get-workflow", {
+        const res = await fetch(`${API_BASE_URL}/api/workflow/get-workflow`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json"
@@ -324,7 +325,8 @@ export default function StacksPage() {
   const handleCreateStack = async () => {
     try {
       // const res = await fetch("http://127.0.0.1:8000/workflow", {
-      const res = await fetch("http://127.0.0.1:8000/api/workflow", {
+      // const res = await fetch("http://127.0.0.1:8000/api/workflow", {
+      const res = await fetch(`${API_BASE_URL}/api/workflow`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

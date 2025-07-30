@@ -2,6 +2,7 @@ import { Handle, Position } from 'reactflow';
 import { useEffect, useState } from 'react';
 import { FolderUp, BookOpen } from "lucide-react"
 import { toast } from "sonner"
+import { API_BASE_URL } from '@/util/auth';
 
 
 export default function KnowledgeBaseNode({ data, isConnectable }) {             // data been receiving as prop - hence data.config being defined from here.
@@ -71,7 +72,8 @@ export default function KnowledgeBaseNode({ data, isConnectable }) {            
       formData.append("file", uploadedFile);
 
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/upload", {
+        // const res = await fetch("http://127.0.0.1:8000/api/upload", {
+        const res = await fetch(`${API_BASE_URL}/api/upload`, {
           method: "POST",
           body: formData,
           // },

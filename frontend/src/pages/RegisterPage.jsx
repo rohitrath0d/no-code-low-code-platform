@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { API_BASE_URL } from "@/util/auth";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -15,7 +16,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/users/", {
+      // const res = await fetch("http://127.0.0.1:8000/users/", {
+      const res = await fetch(`${API_BASE_URL}/users/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

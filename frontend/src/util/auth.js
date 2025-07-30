@@ -1,4 +1,4 @@
-export const API_BASE = "http://127.0.0.1:8000";
+export const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Token Accessors
 export const getAccessToken = () => localStorage.getItem("token");
@@ -34,14 +34,14 @@ export const authFetch = async (url, options = {}) => {
     "Content-Type": "application/json",
   };
 
-  let response = await fetch(`${API_BASE}${url}`, {
+  let response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers,
   });
 
   // If token is expired or invalid
   if (response.status === 401 && getRefreshToken()) {
-    const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+    const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: getRefreshToken() }),
@@ -53,7 +53,7 @@ export const authFetch = async (url, options = {}) => {
 
       // Retry original request with new access token
       headers.Authorization = `Bearer ${data.access_token}`;
-      response = await fetch(`${API_BASE}${url}`, {
+      response = await fetch(`${API_BASE_URL}${url}`, {
         ...options,
         headers,
       });
@@ -91,7 +91,7 @@ export const getUserProfile = async () => {
 };
 
 export const fetchStacks = async () => {
-  const res = await fetch(`${API_BASE}/api/workflow`, {
+  const res = await fetch(`${API_BASE_URL}/api/workflow`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
@@ -100,6 +100,6 @@ export const fetchStacks = async () => {
 };
 
 
-export const createStack = async (stackData) => {
-  // ... similar implementation
-};
+// export const createStack = async (stackData) => {
+//   // ... similar implementation
+// };
