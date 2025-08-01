@@ -182,3 +182,12 @@ curl -X POST http://localhost:8000/run-workflow \
 
 ---
 ## [DEMO Video link (Google drive)](https://drive.google.com/drive/folders/1ze9MFuID7AIVM3rhDXDgMYmEO4asnoqr)
+
+
+## 🚫 License and Usage
+
+This project is published solely for *portfolio and demonstration* purposes.
+
+You are *not permitted* to copy, reuse, modify, or redistribute any part of the codebase or related assets without explicit permission.
+
+All rights are reserved by [Your Name or Company Name].
