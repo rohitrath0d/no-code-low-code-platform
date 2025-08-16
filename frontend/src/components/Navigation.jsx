@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, User, LogOut, Loader2, Save } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -12,6 +12,9 @@ export default function Navigation() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -58,6 +61,18 @@ export default function Navigation() {
 
     fetchUserProfile();
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);         // This listens for any mouse click anywhere in the document. Using "mousedown" means it triggers as soon as the mouse is pressed, before click.
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);    // When the component unmounts, it removes the event listener to avoid memory leaks or trying to update state on an unmounted component.
+    };
+  }, []);
 
 
   const handleSave = async () => {
@@ -173,8 +188,13 @@ export default function Navigation() {
                 Retry Login
               </Button>
             ) : user ? (
-              <div className="relative group">
-                <button className="w-10 h-10 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
+              <div
+                className="relative group"
+                ref={menuRef}
+              >
+                <button
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  className="w-10 h-10 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -185,7 +205,8 @@ export default function Navigation() {
                     <User className="w-4 h-4 text-gray-700" />
                   )}
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 hidden group-hover:block z-50">
+
+                {/* <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 hidden group-hover:block z-50">   -->   This hover property here, is causing issue, that on hover it appears or else disappears
                   <div className="px-4 py-2 text-sm text-gray-700 font-semibold border-b">
                     {user.name || user.email}
                   </div>
@@ -197,7 +218,28 @@ export default function Navigation() {
                     Logout
                   </button>
                 </div>
+              </div> */}
+
+                {
+                  menuOpen && (
+                    // <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 hidden group-hover:block z-50">   -->   This hover property here, is causing issue, that on hover it appears or else disappears
+                    <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 z-50">
+                      <div className="px-4 py-2 text-sm text-gray-700 font-semibold border-b">
+                        {user.name || user.email}
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
+
+                  )}
               </div>
+
+
             ) : !isAuthPage && !isStackPage && !isEditorPage && (
               <>
                 <Button variant="ghost" asChild>

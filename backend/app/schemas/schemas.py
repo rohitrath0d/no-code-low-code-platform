@@ -2,6 +2,8 @@ from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
 from sqlmodel import Field
+from enum import Enum
+
 
 # shemas.py -> contains req/res structure -> request/response validation (table=False)
 
@@ -52,6 +54,13 @@ class ChatLogRead(ChatLogCreate):
     created_at: datetime
 
 
+# class MessageRole(str, Enum):
+#     USER = "user"
+#     ASSISTANT = "assistant"
+#     # MODEL is an alias for ASSISTANT in some APIs
+#     MODEL = "model"
+
+
 class ChatMessage(BaseModel):
     role: str  # "user" or "assistant"
     content: str
@@ -68,7 +77,7 @@ class WorkflowRunRequest(BaseModel):
     custom_prompt: Optional[str] = ""
     # top_k: Optional[int] = 3
     components: List[Component]
-    top_k: Optional[int] = 1  # Default to 1 if not provided
+    top_k: Optional[int] = 1  # Default to 1 iNonef not provided
     workflow_id: Optional[int] = None
     chat_history: Optional[List[ChatMessage]] = None
 

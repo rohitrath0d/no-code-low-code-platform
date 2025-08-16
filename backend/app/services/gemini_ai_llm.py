@@ -80,6 +80,141 @@ load_dotenv()           # loading env variables
 #     genai.configure(api_key=api_key)
 
 
+# class GeminiAIClient:
+#     def __init__(self):
+#         """Initialize the Gemini AI client"""
+#         self.client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+
+#     # def gemini_chat_llm(
+#     def generate_response(
+#         self,
+#         query: str,
+#         context: str = "",
+#         prompt: str = "",
+#         # model: str = "gemini-pro",
+#         model: str = "gemini-2.0-flash",
+#         api_key: Optional[str] = None,
+#         chat_history: list = None
+#     ) -> str:
+#         """ Generate response using Gemini AI
+#             Args:
+#             query: User's question/input
+#             context: Relevant context for the query
+#             prompt: System prompt/instructions
+#             model: Gemini model to use
+#             api_key: Optional API key override
+#             chat_history: List of previous messages in format:
+#                 [{'role': 'user'|'model', 'content': 'text'}, ...]
+
+#             Returns:
+#             Generated response text
+#         """
+#         try:
+            
+#             # Prepare the base message
+#             full_prompt = f"{prompt}\n\nContext:\n{context}\n\nQuestion:\n{query}" if context else f"{prompt}\n\nQuestion:\n{query}"
+            
+#             # Prepare contents array
+#             contents = []
+            
+#         # Initialize the model with api key
+#         # initialize_gemini(api_key)
+
+#         # Initialize the model
+#         # model = genai.GenerativeModel(model)
+
+#         # Build conversation history
+#             # history = []
+#             if chat_history:
+#                 # history = [
+#                 #     # {'role': msg['role'], 'parts': [msg['content']]}
+#                 #     {
+#                 #         'role': msg.role, 
+#                 #         # 'parts': [msg.parts]
+#                 #         "parts": [part.text for part in msg.content]
+#                 #     }
+#                 #     for msg in chat_history
+#                 # ]
+                
+#             #     history = []
+#             #     for msg in chat_history:
+#             #         parts_list = []
+#             #         for part in msg.content:
+#             #             if hasattr(part, "text"):   # Gemini object
+#             #                 parts_list.append(part.text)
+#             #             else:                       # Already a plain string
+#             #                 parts_list.append(str(part))
+#             #         history.append({
+#             #             "role": msg[role],
+#             #             "parts": [msg['content']]
+#             #         })
+#             # else:
+#             #     history = []
+            
+#                 # Build conversation history
+#                 history = []
+#                 if chat_history:
+#                     for msg in chat_history:
+#                         if not isinstance(msg, dict) or 'role' not in msg or 'content' not in msg:
+#                             raise ValueError("Each message in chat_history must be a dict with 'role' and 'content'")
+#                         if msg['role'] not in ['user', 'model']:
+#                             raise ValueError("Message role must be either 'user' or 'model'")
+                        
+#                         if not isinstance(msg['parts'], list):
+#                             raise ValueError("'parts' must be a list of text strings")
+                        
+#                         # history.append({
+#                         #     "role": msg['role'],
+#                         #     "parts": [{"text": msg['content']}]
+#                         # })
+                        
+#                         contents.append({
+#                         "role": msg['role'],
+#                         "parts": [{"text": part} for part in msg['parts']]
+#                         })
+                        
+#                 # Add current message
+#                 contents.append({
+#                     "role": "user",
+#                     "parts": [{"text": full_prompt}]
+#                 })
+            
+
+
+#             # Start chat with history
+#             # chat = model.start_chat(history=history)
+
+#             # Construct the full prompt
+#             # full_prompt = f"{prompt}\n\nContext:\n{context}\n\nQuestion:\n{query}"
+#             # full_prompt = f"{prompt}\n\nContext:\n{context}\n\nQuestion:\n{query}" if context else f"{prompt}\n\nQuestion:\n{query}"
+
+#             # Generate response
+#             # response = model.generate_content(full_prompt)
+
+#             # For chat models, include history in the contents
+#             # if chat_history:
+#             #     contents = history + [{'role': 'user', 'parts': [{"text": full_prompt}]}]
+#             # else:
+#             #     # contents = [full_prompt]
+#             #     contents = [{"role": "user", "parts": [{"text": full_prompt}]}]
+
+#             # Generate response     -- with recent config updates
+#             response = self.client.models.generate_content(
+#                 model=model,
+#                 # contents=[full_prompt],
+#                 contents=contents,
+#                 # Additional parameters can be added here
+#             )
+
+#             return response.text
+
+#         except Exception as e:
+#             raise ValueError(f"Gemini AI error: {str(e)}")
+            
+# # Initialize singleton client
+# gemini_client = GeminiAIClient()
+
+
 class GeminiAIClient:
     def __init__(self):
         """Initialize the Gemini AI client"""
