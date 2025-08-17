@@ -3,24 +3,51 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: nocodelowcode-backend
+      context: .                              # Root folder of the project.
+      dockerfile: backend/Dockerfile          # Use backend/Dockerfile to build image.
+    container_name: nocodelowcode-backend     # Explicit container name.
     ports:
-      - "8000:8000"
+      - "8000:8000"                           # Map host:container port (API exposed at localhost:8000).
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=${DATABASE_URL}          # Inject environment variable from `.env`.
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     networks:
       - app-network
+      - monitoring                             # Backend connects to both app & monitoring networks.
+
 
   prom-server:
     image: prom/prometheus
+    container_name: prometheus
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+      - ./backend/prometheus-config.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring    
 
+
+  loki:
+    image: grafana/loki:3.0.0                       # Specifies the Loki Docker image and version.
+    container_name: loki                            # Names the container for easier management.
+    volumes:
+      - ./backend/loki-config.yaml:/mnt/config/loki-config.yaml # Mounts the Loki configuration file.
+      - ./data:/tmp
+    ports:
+      - "3100:3100"                                 # Maps port 3100 on the host to port 3100 in the container.
+    command: -config.file=/mnt/config/loki-config.yaml # Runs Loki with the specified configuration file.
+
+  promtail:
+    image: grafana/promtail:3.0.0                   # Specifies the Promtail Docker image and version.
+    container_name: promtail                        # Names the container for easier management.
+    volumes:
+      - ./backend/promtail-config.yaml:/mnt/config/promtail-config.yaml # Mounts the Promtail configuration file.
+      - /var/log:/var/log                           # Mounts the host's log directory.
+    depends_on:
+      - loki                                       # Ensures Promtail starts after Loki.
+    command: -config.file=/mnt/config/promtail-config.yaml # Runs Promtail with the specified configuration file.
+    
+  
   frontend:
     build:
       context: .
@@ -36,9 +63,10 @@ services:
       - backend
     networks:
       - app-network
-
     
 
 networks:
   app-network:
+    driver: bridge
+  monitoring:
     driver: bridge

@@ -4,4 +4,7 @@ global:
 scrape_configs:
   - job_name: prometheus
     static_configs:
-      - targets: ["localhost:8000"]
+      # - targets: ["backend:8000"] # this should be setup for python metrics endpoint for docker
+      # - targets: ["host.docker.internal:8000"]
+      - targets: ["192.168.1.38:8000"]
+
