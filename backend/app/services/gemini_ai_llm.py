@@ -290,12 +290,13 @@ class GeminiAIClient:
             raise ValueError(f"Gemini AI error: {str(e)}")
             
 # Initialize singleton client
-gemini_client = GeminiAIClient()
-# --- Lazy Singleton ---
-# gemini_client: GeminiAIClient | None = None
+# gemini_client = GeminiAIClient()
 
-# def get_gemini_client() -> GeminiAIClient:
-#     global gemini_client
-#     if gemini_client is None:
-#         gemini_client = GeminiAIClient()
-#     return gemini_client
+# --- Lazy Singleton ---
+gemini_client: GeminiAIClient | None = None
+
+def get_gemini_client() -> GeminiAIClient:
+    global gemini_client
+    if gemini_client is None:
+        gemini_client = GeminiAIClient()
+    return gemini_client
