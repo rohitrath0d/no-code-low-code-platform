@@ -293,7 +293,8 @@ class GeminiAIClient:
 # gemini_client = GeminiAIClient()
 
 # --- Lazy Singleton ---
-gemini_client: GeminiAIClient | None = None
+# gemini_client: GeminiAIClient | None = None
+gemini_client: Optional[GeminiAIClient] = None
 
 def get_gemini_client() -> GeminiAIClient:
     global gemini_client

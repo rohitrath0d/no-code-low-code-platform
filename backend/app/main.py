@@ -68,7 +68,7 @@ app = FastAPI(debug=False)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nocode-frontend-production.up.railway.app"],  # or ["*"] during development
+    allow_origins=["https://nocode-frontend-production.up.railway.app", "http://localhost:5173"],  # or ["*"] during development
     allow_credentials=True,
     # allow_methods=["*"],
     # allow_headers=["*"],
