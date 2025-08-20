@@ -232,21 +232,21 @@
 FROM python:3.12.4-slim-bookworm AS builder
 
 # Specify the variable you need
-ARG DATABASE_URL
-ARG GEMINI_API_KEY
-ARG SERP_API_KEY
-ARG JWT_SECRET
+# ARG DATABASE_URL
+# ARG GEMINI_API_KEY
+# ARG SERP_API_KEY
+# ARG JWT_SECRET
 
-# Use the varible
-RUN echo $DATABASE_URL
-RUN echo $GEMINI_API_KEY
-RUN echo $SERP_API_KEY
-RUN echo $JWT_SECRET
+# # Use the varible
+# RUN echo $DATABASE_URL
+# RUN echo $GEMINI_API_KEY
+# RUN echo $SERP_API_KEY
+# RUN echo $JWT_SECRET
 
-ENV DATABASE_URL=$DATABASE_URL
-ENV GEMINI_API_KEY=$GEMINI_API_KEY
-ENV SERP_API_KEY=$SERP_API_KEY
-ENV JWT_SECRET=$JWT_SECRET
+# ENV DATABASE_URL=$DATABASE_URL
+# ENV GEMINI_API_KEY=$GEMINI_API_KEY
+# ENV SERP_API_KEY=$SERP_API_KEY
+# ENV JWT_SECRET=$JWT_SECRET
 
 # Install essential build dependencies (with security upgrades)
 RUN apt-get update && apt-get install -y --no-install-recommends \
