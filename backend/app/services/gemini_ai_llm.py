@@ -215,7 +215,7 @@ load_dotenv()           # loading env variables
 # gemini_client = GeminiAIClient()
 
 # GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# api_key = os.getenv("GEMINI_API_KEY")
 
 
 class GeminiAIClient:
@@ -291,13 +291,14 @@ class GeminiAIClient:
             
         
         # api_key = os.getenv("GEMINI_API_KEY")
-        api_key = GEMINI_API_KEY
+        # api_key = GEMINI_API_KEY
         # """Initialize the Gemini AI client"""
         # if not api_key:
         #     raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
         # self.client = genai.Client(api_key=api_key)
         """Initialize the Gemini AI client"""
-        self.client = genai.Client(api_key=api_key)
+        # self.client = genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=os.getenv(GEMINI_API_KEY))
         
         if not GEMINI_API_KEY:
             raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
