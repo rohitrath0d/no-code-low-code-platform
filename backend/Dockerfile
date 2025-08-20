@@ -269,6 +269,8 @@ RUN pip install --user --no-cache-dir torch==2.5.0+cpu --index-url https://downl
 # Step 2: Install rest of the dependencies
 RUN pip install --user --no-cache-dir -r requirements.txt
 
+ARG GEMINI_API_KEY
+
 # Copy application code
 COPY backend/ .
 # -------- Stage 2: Runtime --------
@@ -301,7 +303,7 @@ ENV PATH=/root/.local/bin:$PATH \
 
 # # Specify the variable you need
 # ARG DATABASE_URL
-# ARG GEMINI_API_KEY
+ARG GEMINI_API_KEY
 # ARG SERP_API_KEY
 # ARG JWT_SECRET
 # # Use the varible
@@ -315,6 +317,8 @@ RUN find /usr/local -type d -name '__pycache__' -exec rm -rf {} + \
     && find /usr/local -type f -name '*.py[co]' -delete
 
 EXPOSE 8000
+
+ARG GEMINI_API_KEY
 
 # Modified health check (remove if you don't have /health endpoint)
 HEALTHCHECK CMD curl -f http://localhost:8000/health || exit 1
