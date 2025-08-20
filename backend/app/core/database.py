@@ -8,7 +8,7 @@ load_dotenv()
 DATABASE_URL= os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-  raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
+  raise RuntimeError("❌ DATABASE_URL environment variable is not set")
 
 # creating SQLModel engine
 engine = create_engine(DATABASE_URL, echo=True)     #echo=True shows SQL logs

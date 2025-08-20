@@ -215,13 +215,91 @@ load_dotenv()           # loading env variables
 # gemini_client = GeminiAIClient()
 
 # GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+
 class GeminiAIClient:
     def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
+        
+        # # def gemini_chat_llm(
+        # def generate_response(
+        #     self,
+        #     query: str,
+        #     context: str = "",
+        #     prompt: str = "",
+        #     # model: str = "gemini-pro",
+        #     model: str = "gemini-2.0-flash",
+        #     api_key: Optional[str] = None,
+        #     chat_history: list = None
+        #     ) -> str:
+        #     """ Generate response using Gemini AI
+        #         Args:
+        #         query: User's question/input
+        #         context: Relevant context for the query
+        #         prompt: System prompt/instructions
+        #         model: Gemini model to use
+        #         api_key: Optional API key override
+        #         chat_history: List of previous messages
+
+        #         Returns:
+        #         Generated response text
+        #     """
+            
+        #     try:
+        #         # Initialize the model with api key
+        #         # initialize_gemini(api_key)
+
+        #         # Initialize the model
+        #         # model = genai.GenerativeModel(model)
+
+        #     # Build conversation history
+        #         history = []
+        #         if chat_history:
+        #             history = [
+        #                 {'role': msg['role'], 'parts': [msg['content']]}
+        #                 for msg in chat_history
+        #             ]
+
+        #         # Start chat with history
+        #         # chat = model.start_chat(history=history)
+
+        #         # Construct the full prompt
+        #         full_prompt = f"{prompt}\n\nContext:\n{context}\n\nQuestion:\n{query}"
+
+        #         # Generate response
+        #         # response = model.generate_content(full_prompt)
+
+        #         # For chat models, include history in the contents
+        #         if chat_history:
+        #             contents = history + [{'role': 'user', 'parts': [full_prompt]}]
+        #         else:
+        #             contents = [full_prompt]
+
+        #         # Generate response     -- with recent config updates
+        #         response = self.client.models.generate_content(
+        #             model=model,
+        #             # contents=[full_prompt],
+        #             contents=contents,
+        #             # Additional parameters can be added here
+        #         )
+
+        #         return response.text
+
+        #     except Exception as e:
+        #         raise ValueError(f"Gemini AI error: {str(e)}")
+            
+            
+        
+        # api_key = os.getenv("GEMINI_API_KEY")
+        # """Initialize the Gemini AI client"""
+        # if not api_key:
+        #     raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
+        # self.client = genai.Client(api_key=api_key)
         """Initialize the Gemini AI client"""
-        if not api_key:
+        self.client = genai.Client(api_key=GEMINI_API_KEY)
+        
+        if not GEMINI_API_KEY:
             raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
-        self.client = genai.Client(api_key=api_key)
 
     # def gemini_chat_llm(
     def generate_response(
@@ -246,6 +324,7 @@ class GeminiAIClient:
             Returns:
             Generated response text
         """
+    
         try:
         # Initialize the model with api key
         # initialize_gemini(api_key)
@@ -277,6 +356,7 @@ class GeminiAIClient:
                 contents = [full_prompt]
 
             # Generate response     -- with recent config updates
+            # response = self.client.models.generate_content(
             response = self.client.models.generate_content(
                 model=model,
                 # contents=[full_prompt],
@@ -290,14 +370,14 @@ class GeminiAIClient:
             raise ValueError(f"Gemini AI error: {str(e)}")
             
 # Initialize singleton client
-# gemini_client = GeminiAIClient()
+gemini_client = GeminiAIClient()
 
 # --- Lazy Singleton ---
 # gemini_client: GeminiAIClient | None = None
-gemini_client: Optional[GeminiAIClient] = None
+# gemini_client: Optional[GeminiAIClient] = None
 
-def get_gemini_client() -> GeminiAIClient:
-    global gemini_client
-    if gemini_client is None:
-        gemini_client = GeminiAIClient()
-    return gemini_client
+# def get_gemini_client() -> GeminiAIClient:
+#     global gemini_client
+#     if gemini_client is None:
+#         gemini_client = GeminiAIClient()
+#     return gemini_client
