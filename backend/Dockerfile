@@ -304,7 +304,7 @@ ENV PATH=/root/.local/bin:$PATH \
 # # Specify the variable you need
 # ARG DATABASE_URL
 ARG GEMINI_API_KEY
-ENV GEMINI_API_KEY="$GEMINI_API_KEY"
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
 # ARG SERP_API_KEY
 # ARG JWT_SECRET
 # # Use the varible
