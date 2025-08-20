@@ -291,12 +291,13 @@ class GeminiAIClient:
             
         
         # api_key = os.getenv("GEMINI_API_KEY")
+        api_key = GEMINI_API_KEY
         # """Initialize the Gemini AI client"""
         # if not api_key:
         #     raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
         # self.client = genai.Client(api_key=api_key)
         """Initialize the Gemini AI client"""
-        self.client = genai.Client(api_key=GEMINI_API_KEY)
+        self.client = genai.Client(api_key=api_key)
         
         if not GEMINI_API_KEY:
             raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
