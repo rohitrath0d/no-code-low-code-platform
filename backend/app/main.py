@@ -68,10 +68,12 @@ app = FastAPI(debug=False)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4174"],  # or ["*"] during development
+    allow_origins=["https://nocode-frontend-production.up.railway.app"],  # or ["*"] during development
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    # allow_methods=["*"],
+    # allow_headers=["*"],
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["Content-Type", "Authorization"]
 )
 
 
@@ -292,6 +294,10 @@ def slow():
 def metrics():
     # return Response(generate_latest(registry), media_type="text/plain")
     return Response(generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST})
+
+@app.get("/health") 
+async def health_check(): 
+    return {"status": "healthy"}
 
 @app.get("/")
 def root():
