@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 # from pydantic import BaseModel
 from app.services.embedding_model_huggingface import generate_embedding
 from app.services.vectordb_store import query_similar_documents
@@ -12,14 +12,17 @@ import json
 from app.services.serp_api_search import serpapi_search
 from typing import List
 from datetime import datetime
+from app.middlewares.auth_helpers import get_current_user
 
+
+# have to add user_id association at time of creating and getting the workflows
 
 # router= APIRouter(prefix="/run-workflow", tags=["Run Workflow"])
 router = APIRouter(prefix="/api/workflow", tags=["Workflow"])
 
-
+# Creates a new workflow in the database using the provided name, description, and components.
 @router.post("/", response_model=WorkflowRead)
-def create_workflow(workflow: WorkflowCreate):
+def create_workflow(workflow: WorkflowCreate, user=Depends(get_current_user)):
     try:
         with next(get_Session()) as session:
 
@@ -33,6 +36,7 @@ def create_workflow(workflow: WorkflowCreate):
             # Ensure components exists and is a dict
             workflow_data = workflow.dict()
             workflow_data.setdefault("components", {})
+            workflow_data["user_id"] = user.id  # Set the user_id
 
             new_workflow = Workflow(**workflow_data)
 
@@ -42,6 +46,14 @@ def create_workflow(workflow: WorkflowCreate):
             return new_workflow
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# Runs a workflow by:
+# Validating the workflow exists.
+# Optionally querying a knowledge base for context.
+# Optionally performing a web search (SerpAPI).
+# Building a prompt and sending it to a Gemini LLM.
+# Optionally saving the chat log. Returns: The user query, context used, LLM response, and any search/document results.
 
 
 @router.post("/run-workflow")
@@ -198,6 +210,7 @@ async def run_workflow(request: WorkflowRunRequest):
             status_code=500, detail=f"Workflow failed: {str(e)}")
 
 
+# Saves a workflow to the database (similar to create_workflow, but may be used for saving after editing).
 @router.post("/save-workflow", response_model=WorkflowRead)
 def save_workflow(workflow: WorkflowCreate):
 
@@ -229,11 +242,10 @@ def save_workflow(workflow: WorkflowCreate):
         raise HTTPException(
             status_code=500, detail=f"workflow saving failed: {str(e)}")
 
-
 # json.dumps(components)	When saving to DB	SQL databases don’t understand Python dicts, so we convert to str
 # json.loads(components)	When returning to frontend (API resp)	FastAPI/Pydantic expects a real dict to convert into schema
 
-
+# Loads a workflow by its ID from the database.
 @router.get("/load/{workflow_id}", response_model=WorkflowRead)
 def load_workflow(workflow_id: int):
     try:
@@ -262,18 +274,21 @@ def load_workflow(workflow_id: int):
         raise HTTPException(
             status_code=500, detail=f"Workflow fetching failed: {str(e)}")
 
-
+# Lists all workflows in the database.
 @router.get("/get-workflow", response_model=List[WorkflowRead])
-def list_all_workflows():
+# def list_all_workflows():
+def list_all_workflows(user=Depends(get_current_user)):
     try:
         with next(get_Session()) as session:
-            workflows = session.query(Workflow).all()
+            # workflows = session.query(Workflow).all()     # here we have to fetch it in accordance to the user id
+            workflows = session.query(Workflow).filter_by(user_id=user.id).all()  # Filter by user_id!
             return workflows
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to list workflows: {str(e)}")
 
 
+# Purpose: Updates an existing workflow’s name, description, and components by its ID.
 @router.put("/{workflow_id}", response_model=WorkflowRead)
 def update_workflow(workflow_id: int, workflow_update: WorkflowCreate):
     try:

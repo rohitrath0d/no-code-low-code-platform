@@ -214,11 +214,14 @@ load_dotenv()           # loading env variables
 # # Initialize singleton client
 # gemini_client = GeminiAIClient()
 
-
+# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 class GeminiAIClient:
     def __init__(self):
+        api_key = os.getenv("GEMINI_API_KEY")
         """Initialize the Gemini AI client"""
-        self.client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+        if not api_key:
+            raise RuntimeError("❌ GEMINI_API_KEY environment variable is not set")
+        self.client = genai.Client(api_key=api_key)
 
     # def gemini_chat_llm(
     def generate_response(
@@ -287,4 +290,12 @@ class GeminiAIClient:
             raise ValueError(f"Gemini AI error: {str(e)}")
             
 # Initialize singleton client
-gemini_client = GeminiAIClient()
+# gemini_client = GeminiAIClient()
+# --- Lazy Singleton ---
+gemini_client: GeminiAIClient | None = None
+
+def get_gemini_client() -> GeminiAIClient:
+    global gemini_client
+    if gemini_client is None:
+        gemini_client = GeminiAIClient()
+    return gemini_client

@@ -70,6 +70,8 @@ class Workflow(SQLModel, table=True):
         default_factory=dict,
         sa_column=Column(JSONB)
     )
+    
+    user_id: int = Field(default=None, foreign_key="user.id")     # user association to workflows
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default=None)  # Add this line

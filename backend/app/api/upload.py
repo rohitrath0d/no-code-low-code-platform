@@ -15,7 +15,8 @@ from app.middlewares.auth_helpers import get_current_user
 router = APIRouter(prefix="/api/upload", tags=["Upload"])
 
 
-@router.post("/")
+@router.post("/") 
+# @router.post("")  # "no slash"
 # async def upload_pdf(file: UploadFile = File(...)):
 # To get current user as per session
 async def upload_pdf(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):

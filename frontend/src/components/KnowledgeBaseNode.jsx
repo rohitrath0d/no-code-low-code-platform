@@ -73,7 +73,7 @@ export default function KnowledgeBaseNode({ data, isConnectable }) {            
 
       try {
         // const res = await fetch("http://127.0.0.1:8000/api/upload", {
-        const res = await fetch(`${API_BASE_URL}/api/upload`, {
+        const res = await fetch(`${API_BASE_URL}/api/upload/`, {
           method: "POST",
           body: formData,
           // },

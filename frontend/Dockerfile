@@ -3,11 +3,17 @@ FROM node:18 AS builder
 
 WORKDIR /app
 # Copy everything from frontend/
-COPY frontend/ . 
+COPY frontend/ .                
 
-#  since context is already frontend/
-# COPY . .                      
+# Copy all files from context root (which is already frontend/)
+# COPY . .
+
 RUN npm install
+
+# Pass build-time env var (important!)
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Build Vite/React app (output: /app/dist)
 RUN npm run build           
 
@@ -27,3 +33,6 @@ EXPOSE 5173
 
 # Start static file server
 CMD ["serve", "-s", "dist", "-l", "5173"]
+
+
+
