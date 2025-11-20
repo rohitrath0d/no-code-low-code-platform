@@ -2,5 +2,5 @@ venv
 
 .env.sample
 .env
-*__pycache__/
+__pycache__/
 *.pyc
