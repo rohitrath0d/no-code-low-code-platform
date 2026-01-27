@@ -24,7 +24,7 @@ export default function LoginPage() {
         body: new URLSearchParams({ email: form.email, password: form.password }),
       });
       console.log(res);
-      
+
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");
@@ -37,15 +37,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-      <div className="flex w-full max-w-6xl shadow-lg rounded-xl overflow-hidden bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex w-full max-w-6xl shadow-lg rounded-xl overflow-hidden bg-white">
         {/* Left side: background graphic */}
         <div
-          className="hidden md:flex flex-1 bg-cover bg-center items-center justify-center bg-gradient-to-r from-gray-100 via-purple-100 to-purple-100"
-          // style={{ backgroundImage: "url('/images/images.png')" }}
+          className="hidden md:flex flex-1 bg-cover bg-center items-center justify-center bg-slate-100"
+        // style={{ backgroundImage: "url('/images/images.png')" }}
         >
           <img
-          src="/images/images.png"
+            src="/images/images.png"
           />
           {/* <div className="text-center p-8 bg-white/70 rounded-xl backdrop-blur-sm"> */}
           {/* <div className="text-center p-8 rounded-xl backdrop-blur-sm"> */}
@@ -57,7 +57,7 @@ export default function LoginPage() {
 
         {/* Right side: login form */}
         <div className="w-full md:w-1/2 p-8">
-          <Card className="w-full bg-gradient-r from-gray-100 via-purple-100 to-blue-100">
+          <Card className="w-full bg-white">
             <CardHeader>
               <CardTitle className="text-2xl text-center">Login</CardTitle>
             </CardHeader>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:opacity-90">
+                <Button type="submit" className="w-full bg-slate-800 text-white hover:bg-slate-700">
                   Login
                 </Button>
               </form>

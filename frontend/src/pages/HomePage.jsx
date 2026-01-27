@@ -51,10 +51,10 @@ const Home = () => {
   //   { label: "Enterprise Ready", value: "100%", icon: Shield }
   // ];
 
-  const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
+  const accentColor = "bg-slate-800";
 
   return (
-    <div className="min-h-screen bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+    <div className="min-h-screen bg-slate-50">
      
 
       {/* Navigation */}
@@ -62,7 +62,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <div className={`w-8 h-8 ${gradientColor} rounded-lg flex items-center justify-center`}>
+              <div className={`w-8 h-8 ${accentColor} rounded-lg flex items-center justify-center`}>
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold">FlowCraft AI</span>
@@ -78,7 +78,7 @@ const Home = () => {
               <Button variant="ghost" asChild>
                 <Link to="/login">Sign In</Link>
               </Button>
-              <Button asChild className={`${gradientColor} text-white border-0 shadow-glow`}>
+              <Button asChild className={`${accentColor} text-white border-0 hover:bg-slate-700`}>
                 <Link to="/register">Get Started</Link>
               </Button>
             </div>
@@ -98,7 +98,7 @@ const Home = () => {
               No-Code AI Workflow Builder
             </Badge>
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-slate-800">
               Build Intelligent
               <br />
               Workflows Visually
@@ -110,7 +110,7 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" asChild className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}>
+              <Button size="lg" asChild className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}>
                 {/* <Link to="/workflow"> */}
                 <Link to="/register">
                   Start Building
@@ -134,7 +134,7 @@ const Home = () => {
                 className="text-center"
               >
                 <div className="flex justify-center mb-4">
-                  <div className={`w-12 h-12 ${gradientColor} rounded-xl flex items-center justify-center`}>
+                  <div className={`w-12 h-12 ${accentColor} rounded-xl flex items-center justify-center`}>
                     <stat.icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
@@ -162,12 +162,12 @@ const Home = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index}
-                className={`bg-gradient-to-r from-purple-100-100 via-purple-100 to-blue-100 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:-translate-y-1 ${hoveredFeature === index ? 'shadow-glow' : ''}`}
+                className={`bg-white border-slate-200 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:-translate-y-1 ${hoveredFeature === index ? 'shadow-lg' : ''}`}
                 onMouseEnter={() => setHoveredFeature(index)}
                 onMouseLeave={() => setHoveredFeature(null)}
               >
                 <CardHeader>
-                  <div className={`w-12 h-12 ${gradientColor} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-bounce`}>
+                  <div className={`w-12 h-12 ${accentColor} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all`}>
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
                   <CardTitle className="text-lg">{feature.title}</CardTitle>
@@ -191,7 +191,7 @@ const Home = () => {
           <p className="text-xl text-muted-foreground mb-8">
             Join thousands of users already building the future with FlowCraft AI
           </p>
-          <Button size="lg" asChild className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}>
+          <Button size="lg" asChild className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}>
             <Link to="/register">
               Start Your Free Trial
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -201,12 +201,12 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/50 py-12 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+      <footer className="border-t bg-slate-100 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4 ">
-                <div className={`w-8 h-8 ${gradientColor} rounded-lg flex items-center justify-center`}>
+                <div className={`w-8 h-8 ${accentColor} rounded-lg flex items-center justify-center`}>
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold">FlowCraft AI</span>

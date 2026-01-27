@@ -70,7 +70,7 @@ export default function LLMEngineNode({ data, isConnectable }) {        // data 
 
   return (
     // <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative">
-    <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-4 w-80 relative bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 ">
+    <div className="bg-white border-2 border-slate-200 rounded-lg shadow-sm p-4 w-80 relative">
       {/* <div className="flex items-center justify-between mb-3">  <Brain /> */}
       <div className="flex gap-3 mb-3">  <Brain />
         {/* <h3 className="text-lg font-bold text-gray-800">LLM (Gemini AI)</h3> */}

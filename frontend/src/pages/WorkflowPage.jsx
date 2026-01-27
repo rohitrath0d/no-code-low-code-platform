@@ -460,7 +460,7 @@ export default function WorkflowPage() {
 
       <div className="flex flex-col h-screen overflow-hidden">
         <Navigation />
-        <div className="flex flex-1 relative min-h-0 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+        <div className="flex flex-1 relative min-h-0 bg-slate-50">
 
           {/* Sidebar */}
           {/* <div className="w-64 bg-gray-100 border-r p-4">
@@ -480,7 +480,7 @@ export default function WorkflowPage() {
         </div> */}
 
           {/* <div className="w-64 bg-gray-100 border-r p-4 flex flex-col justify-between "> */}
-          <div className="w-64 border-r p-4 flex flex-col justify-between bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100 overflow-y-auto">
+          <div className="w-64 border-r border-slate-200 p-4 flex flex-col justify-between bg-white overflow-y-auto">
 
 
 
@@ -492,17 +492,17 @@ export default function WorkflowPage() {
               {/* <h2 className="font-semibold text-lg">{stack.name}</h2> */}
               {/* Stack Name Header */}
               <div className="flex-col items-center border mt-3 rounded-xl border-gray-500 mb-2">
-              <h3 className="text-sm px-3 p-1 font-semibold text-lg text-gray-800">
-                {workflowMeta.name || 'Untitled Workflow'}
-                
-              </h3>
-              {/* {workflowMeta.description && (
+                <h3 className="text-sm px-3 p-1 font-semibold text-lg text-gray-800">
+                  {workflowMeta.name || 'Untitled Workflow'}
+
+                </h3>
+                {/* {workflowMeta.description && (
                 <p className="text-xs text-gray-500 mt-1 text-center">
                   {workflowMeta.description}
                 </p>
               )} */}
 
-              {/* <Edit className="h-4 w-5 ml-45"/> */}
+                {/* <Edit className="h-4 w-5 ml-45"/> */}
               </div>
 
               <h2 className="text-xl font-semibold mt-5 mb-4 text-lg">Components</h2>
@@ -514,7 +514,7 @@ export default function WorkflowPage() {
                     draggable
                     onDragStart={(e) => onDragStart(e, comp.type)}
                     // className="w-full px-4 py-2 bg-white rounded-xl border hover:bg-gray-50 cursor-move"
-                    className="w-full px-4 py-2 text-xs rounded-xl border-1 border-gray-700 cursor-move bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
+                    className="w-full px-4 py-2 text-xs rounded-xl border border-slate-300 cursor-move bg-white hover:bg-slate-50"
                   >
                     {comp.label}
                   </button>
@@ -538,12 +538,12 @@ export default function WorkflowPage() {
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100"
+                      className="w-full text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 bg-white"
                     >
                       Logout  <LogOut />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="w-xl bg-gradient-to-r from-purple-200 via-purple-200 to-purple-200">
+                  <DialogContent className="w-xl bg-white border border-slate-200">
                     <DialogHeader>
                       <DialogTitle>Confirm Logout</DialogTitle>
                     </DialogHeader>
@@ -643,11 +643,11 @@ export default function WorkflowPage() {
                   <MessageSquare className="w-5 h-5" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[1250px] h-[82vh] bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-                <DialogHeader className="rounded-xl bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-                  <DialogTitle className="text-lg font-bold text-purple-800">GenAI Stack Chat</DialogTitle>
+              <DialogContent className="w-[1250px] h-[82vh] bg-white border border-slate-200">
+                <DialogHeader className="rounded-xl bg-white">
+                  <DialogTitle className="text-lg font-bold text-slate-800">GenAI Stack Chat</DialogTitle>
                 </DialogHeader>
-                <div className="flex-1 w-[1200px] bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+                <div className="flex-1 w-[1200px] bg-white">
                   {/* <div className="p-4 bg-white w-[700px] "> */}
 
                   {/* <div className="space-y-3 text-sm bg-gray-50 border rounded-md p-3 max-h-[250px] overflow-auto"> */}
@@ -663,7 +663,7 @@ export default function WorkflowPage() {
                               {/* <div className="flex flex-row gap-2 font-semibold text-blue-900"> <CircleUser /> You:</div> */}
                               <div className="flex flex-row gap-2 font-semibold rounded-xl p-2 mb-2 bg-blue-100 text-blue-900"> <CircleUser /> You:   <div className="">{log.user_query}</div> </div>
 
-                              <div className="bg-pink-100 text-gray-900 rounded-xl">
+                              <div className="bg-slate-100 text-gray-900 rounded-xl">
                                 <div className="flex flex-row gap-2 p-2 font-semibold"> <BotMessageSquare /> AI Bot:</div>
                                 <div className="font-semibold gap-2 p-2">{log.response}</div>
                               </div>
@@ -693,7 +693,7 @@ export default function WorkflowPage() {
                                 ? 'bg-blue-200 text-black-900 mb-2 font-semibold'
                                 : message.isError
                                   ? 'bg-red-100 text-red-900 mb-2'
-                                  : 'bg-pink-100 text-gray-900 border border-gray-200'
+                                  : 'bg-slate-100 text-gray-900 border border-slate-200'
                                 }`}
                             >
                               {message.isMarkdown ? (
@@ -735,37 +735,37 @@ export default function WorkflowPage() {
 
                     </div>
 
-                    <div className="p-4 bg-background bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        // onKeyDown={handleKeyDown}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleChatSubmit();
-                          }
-                        }}
-                        className="flex-1 border border-pink-400 px-3 rounded text-sm"
-                        placeholder="Ask something..."
-                        rows={1}
-                      />
-                      <Button
-                        // onClick={runLLM} 
-                        onClick={handleChatSubmit}
-                        className="flex items-center gap-1 bg-gradient-to-r from-primary via-purple-500 to-blue-500"
-                        disabled={!query.trim()}
-                      >
-                        <Send className="w-4 h-4" />
-                        Send
-                      </Button>
+                    <div className="p-4 bg-white">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                          // onKeyDown={handleKeyDown}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleChatSubmit();
+                            }
+                          }}
+                          className="flex-1 border border-slate-300 px-3 rounded text-sm"
+                          placeholder="Ask something..."
+                          rows={1}
+                        />
+                        <Button
+                          // onClick={runLLM} 
+                          onClick={handleChatSubmit}
+                          className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700"
+                          disabled={!query.trim()}
+                        >
+                          <Send className="w-4 h-4" />
+                          Send
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
                   </div>
-         
+
                   {/* </div> */}
                 </div>
               </DialogContent>

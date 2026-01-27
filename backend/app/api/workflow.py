@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.services.embedding_model_huggingface import generate_embedding
 from app.services.vectordb_store import query_similar_documents
 # from app.services.gemini_ai_llm import gemini_chat_llm
-from app.services.gemini_ai_llm import gemini_client
+from app.services.gemini_ai_llm import get_gemini_client
 from app.models.models import ChatLog, Workflow
 # from app.schemas.schemas import ChatLogCreate
 from app.core.database import get_Session
@@ -13,7 +13,7 @@ from app.services.serp_api_search import serpapi_search
 from typing import List
 from datetime import datetime
 from app.middlewares.auth_helpers import get_current_user
-# from app.services.gemini_ai_llm import get_gemini_client
+
 
 
 # have to add user_id association at time of creating and getting the workflows
@@ -165,8 +165,8 @@ async def run_workflow(request: WorkflowRunRequest):
         #     raise HTTPException(status_code=400, detail=f"LLM processing error: {str(e)}")
 
         # llm_response = gemini_chat_llm(
-        llm_response = gemini_client.generate_response(
-        # llm_response = get_gemini_client().generate_response(
+        llm_response = get_gemini_client().generate_response(
+        # llm_response = gemini_client.generate_response(  # deprecated
             query=request.query,
             context=context,
             # prompt=prompt

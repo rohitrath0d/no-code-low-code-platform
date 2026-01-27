@@ -371,15 +371,15 @@ class GeminiAIClient:
         except Exception as e:
             raise ValueError(f"Gemini AI error: {str(e)}")
             
-# Initialize singleton client
-gemini_client = GeminiAIClient()
+# Lazy Singleton for faster startup
+_gemini_client: Optional[GeminiAIClient] = None
 
-# --- Lazy Singleton ---
-# gemini_client: GeminiAIClient | None = None
-# gemini_client: Optional[GeminiAIClient] = None
+def get_gemini_client() -> GeminiAIClient:
+    """Lazy load the Gemini client on first use"""
+    global _gemini_client
+    if _gemini_client is None:
+        _gemini_client = GeminiAIClient()
+    return _gemini_client
 
-# def get_gemini_client() -> GeminiAIClient:
-#     global gemini_client
-#     if gemini_client is None:
-#         gemini_client = GeminiAIClient()
-#     return gemini_client
+# For backwards compatibility - but prefer using get_gemini_client()
+gemini_client = None  # Will be initialized on first use

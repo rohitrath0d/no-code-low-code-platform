@@ -24,7 +24,7 @@ export default function Navigation() {
   const { nodes, edges } = useWorkflow();
   const { stackId } = useParams();
 
-  const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
+  const accentColor = "bg-slate-800";
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -147,12 +147,12 @@ export default function Navigation() {
   const isEditorPage = location.pathname.startsWith('/editor/');
 
   return (
-    <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 bg-gradient-to-r from-purple-200 via-purple-100 to-pink-200">
+    <nav className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-9xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left side - Logo */}
           <div className="flex items-center space-x-2">
-            <div className={`w-8 h-8 ${gradientColor} rounded-lg flex items-center justify-center`}>
+            <div className={`w-8 h-8 ${accentColor} rounded-lg flex items-center justify-center`}>
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold">FlowCraft AI</span>
@@ -170,7 +170,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             {isEditorPage && (
               <Button
-                className={`${gradientColor}`}
+                className={`${accentColor} hover:bg-slate-700`}
                 onClick={handleSave}
               >
                 Save <Save className="ml-2" />
@@ -194,7 +194,7 @@ export default function Navigation() {
               >
                 <button
                   onClick={() => setMenuOpen((prev) => !prev)}
-                  className="w-10 h-10 rounded-full bg-purple-300 flex items-center justify-center hover:bg-purple-400">
+                  className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center hover:bg-slate-300">
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -223,7 +223,7 @@ export default function Navigation() {
                 {
                   menuOpen && (
                     // <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 hidden group-hover:block z-50">   -->   This hover property here, is causing issue, that on hover it appears or else disappears
-                    <div className="absolute right-0 mt-2 w-48 bg-purple-200 rounded-md shadow-lg py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-md shadow-lg py-1 z-50">
                       <div className="px-4 py-2 text-sm text-gray-700 font-semibold border-b">
                         {user.name || user.email}
                       </div>
@@ -245,7 +245,7 @@ export default function Navigation() {
                 <Button variant="ghost" asChild>
                   <Link to="/login">Sign In</Link>
                 </Button>
-                <Button asChild className={`${gradientColor} text-white border-0 shadow-glow`}>
+                <Button asChild className={`${accentColor} text-white border-0 hover:bg-slate-700`}>
                   <Link to="/register">Get Started</Link>
                 </Button>
               </>

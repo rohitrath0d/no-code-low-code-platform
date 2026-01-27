@@ -272,7 +272,7 @@ import { SquarePen } from 'lucide-react';
 
 
 export default function StacksPage() {
-  const gradientColor = "bg-gradient-to-r from-primary via-purple-500 to-blue-500";
+  const accentColor = "bg-slate-800";
   const navigate = useNavigate();
   const [stacks, setStacks] = useState([]);
   const [form, setForm] = useState({ name: '', description: '' });
@@ -364,7 +364,7 @@ export default function StacksPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+    <div className="min-h-screen bg-slate-50">
       <Navigation />
 
       <div className="p-4 text-2xl font-bold">
@@ -376,11 +376,11 @@ export default function StacksPage() {
         {stacks.length > 0 && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}>
+              <Button className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}>
                 + New Stack
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] backdrop-blur-sm bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+            <DialogContent className="sm:max-w-[425px] backdrop-blur-sm bg-white border border-slate-200">
               <DialogHeader>
                 <DialogTitle>Create New Stack</DialogTitle>
               </DialogHeader>
@@ -417,7 +417,7 @@ export default function StacksPage() {
                 </Button>
                 <Button
                   onClick={handleCreateStack}
-                  className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
+                  className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}
                 >
                   Create
                 </Button>
@@ -435,11 +435,11 @@ export default function StacksPage() {
           </p>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}>
+              <Button className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}>
                 + New Stack
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] backdrop-blur-sm bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+            <DialogContent className="sm:max-w-[425px] backdrop-blur-sm bg-white border border-slate-200">
               <DialogHeader>
                 <DialogTitle>Create New Stack</DialogTitle>
               </DialogHeader>
@@ -476,7 +476,7 @@ export default function StacksPage() {
                 </Button>
                 <Button
                   onClick={handleCreateStack}
-                  className={`${gradientColor} text-white border-0 shadow-glow transition-bounce hover:scale-105`}
+                  className={`${accentColor} text-white border-0 hover:bg-slate-700 transition-all hover:scale-105`}
                 >
                   Create
                 </Button>
@@ -490,7 +490,7 @@ export default function StacksPage() {
             <div
               key={stack.id}
               // className="bg-white shadow rounded p-4 flex flex-col justify-between hover:shadow-md transition-shadow"
-              className="bg-background bg-gradient-to-r from-purple-100 via-purple-100 to-blue-100 shadow rounded p-4 flex flex-col justify-between hover:shadow-md transition-shadow border border-pink-300"
+              className="bg-white border border-slate-200 shadow rounded p-4 flex flex-col justify-between hover:shadow-md transition-shadow"
             >
               <div>
                 <h2 className="font-semibold text-lg">{stack.name}</h2>
@@ -508,7 +508,7 @@ export default function StacksPage() {
                   }
                 }}
                 // className="mt-4 text-sm bg-gray-100 border px-3 py-1 rounded hover:bg-gray-200"
-                className=" flex mt-4 ml-60 font-semibold text-xs w-24 bg-pink-200 border px-3 py-1 rounded hover:bg-red-400 gap-0.5"
+                className="flex mt-4 ml-60 font-semibold text-xs w-24 bg-slate-200 border border-slate-300 px-3 py-1 rounded hover:bg-slate-300 gap-0.5"
               >
                 Edit Stack <SquarePen className="h-3 w-3 mt-0.5" />
               </button>

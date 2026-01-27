@@ -33,8 +33,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
-      <div className="flex w-full max-w-6xl shadow-lg bg-white rounded-xl overflow-hidden bg-gradient-to-r from-gray-100 via-purple-100 to-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex w-full max-w-6xl shadow-lg bg-white rounded-xl overflow-hidden">
         {/* Left side: background graphic */}
 
         <div
@@ -54,7 +54,7 @@ export default function RegisterPage() {
 
         {/* Right side: registration form */}
         <div className="w-full md:w-1/2 p-8">
-          <Card className="w-full bg-gradient-to-r from-purple-50-100 via-purple-100 to-blue-100">
+          <Card className="w-full bg-white">
             <CardHeader>
               <CardTitle className="text-2xl text-center">Register</CardTitle>
             </CardHeader>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:opacity-90">
+                <Button type="submit" className="w-full bg-slate-800 text-white hover:bg-slate-700">
                   Register
                 </Button>
               </form>
